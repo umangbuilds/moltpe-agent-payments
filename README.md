@@ -4,8 +4,8 @@ Payment infrastructure for AI agents — reference implementation with x402, MPP
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Content: CC BY-SA 4.0](https://img.shields.io/badge/Content-CC%20BY--SA%204.0-lightgrey.svg)](LICENSE-CONTENT)
-[![npm: coming soon](https://img.shields.io/badge/npm-coming%20soon-inactive)]()
-[![tests: coming soon](https://img.shields.io/badge/tests-coming%20soon-inactive)]()
+[![MCP Server: 53 tests](https://img.shields.io/badge/MCP%20Server-53%20tests%20passing-brightgreen)]()
+[![x402 Client: 34 tests](https://img.shields.io/badge/x402%20Client-34%20tests%20passing-brightgreen)]()
 
 > **Disclaimer:** This is a reference implementation with mock data. For production, implement real PaymentProvider adapters. MoltPe's production server is at moltpe.com/mcp.
 
@@ -15,25 +15,27 @@ This repository contains a reference implementation for handling payments in AI 
 
 ## Quick Start
 
-The MCP server and x402 client ship in a future release. Once available:
-
 ```bash
-# Install the MCP server
-npm install @moltpe/mcp-payments
+# MCP Server — payment tools for AI agents
+cd mcp-server && npm install && npm start
+# Server runs on port 3000 with 11 MCP tools
+# Connect Claude Desktop with config from examples/claude-desktop-config.json
 
-# Install the x402 client
-npm install @moltpe/x402-client
+# x402 Client — stablecoin micropayments
+cd x402-client && npm install && npm run build
+# Use in your project:
+# import { pay } from '@moltpe/x402-client'
 ```
 
-Configuration and usage docs will accompany each package release.
+See [mcp-server/README.md](mcp-server/README.md) and [x402-client/README.md](x402-client/README.md) for full usage.
 
 ## What's Inside
 
 | Directory | Description |
 |-----------|-------------|
 | `research/` | Market research, protocol analysis, competitive landscape |
-| `mcp-server/` | MCP server for agent payment operations (coming soon) |
-| `x402-client/` | x402 protocol client for stablecoin micropayments (coming soon) |
+| `mcp-server/` | MCP payment server with 11 tools, 3 mock providers (x402, MPP, fiat), 53 tests |
+| `x402-client/` | TypeScript x402 client SDK with facilitator adapters and interceptors, 34 tests |
 | `playbook/` | Build playbook: process, templates, results from building this |
 | `docs/` | Architecture docs, protocol landscape, market analysis |
 
@@ -49,9 +51,9 @@ Each path serves different use cases. A collections layer sits above all three t
 
 ## Research Highlights
 
-- Protocol landscape analysis covering x402, MPP, ACP, and AP2 (coming soon)
-- Competitive review of existing agent payment solutions (coming soon)
-- Market gap analysis for agent collections and receivables (coming soon)
+- Verified agent payment volume is $1.6M/month — not the $43M self-reported (48-86% is artificial). See [research/data/verified-volumes.md](research/data/verified-volumes.md).
+- Agent collections/receivables is a near-total market gap — only PayPal MCP exists, ecosystem-locked. See [docs/collections-gap.md](docs/collections-gap.md).
+- Four protocols (x402, MPP, ACP, AP2) are converging into layers, not competing head-to-head. See [docs/protocol-landscape.md](docs/protocol-landscape.md).
 
 ## License
 

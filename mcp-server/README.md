@@ -1,5 +1,7 @@
 # MCP Payment Server — Reference Implementation
 
+Part of [moltpe-agent-payments](https://github.com/umangbuilds/moltpe-agent-payments). See also: [x402 Client SDK](../x402-client/) | [Research](../research/)
+
 Payment tools for AI agents via MCP (Model Context Protocol). Supports three payment rails: stablecoin (x402), session-based (MPP), and fiat (card/bank).
 
 > **Disclaimer:** This is a reference implementation with mock data. All balances, transactions, and payments are simulated. For production, implement real PaymentProvider adapters. MoltPe's production server is at moltpe.com/mcp.
@@ -120,7 +122,7 @@ Returns: `{"status":"ok","provider":"all"}`
 npm test
 ```
 
-Runs 30+ test cases across all providers.
+Runs 53 test cases across all providers.
 
 ## Related Docs
 

@@ -1,5 +1,7 @@
 # x402 Client SDK
 
+Part of [moltpe-agent-payments](https://github.com/umangbuilds/moltpe-agent-payments). See also: [MCP Server](../mcp-server/) | [Protocol Landscape](../docs/protocol-landscape.md)
+
 Lightweight TypeScript SDK for x402 micropayments from AI agents.
 
 > **What is x402?** The x402 protocol adds payment to HTTP. A server returns `402 Payment Required` with a price and payment address. This SDK handles the payment and retries the request automatically.
