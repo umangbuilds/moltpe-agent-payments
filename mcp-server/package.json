@@ -1,13 +1,15 @@
 {
   "name": "@moltpe/mcp-payments",
   "version": "0.1.0",
-  "private": true,
-  "description": "MCP server for agent payment operations",
-  "license": "Apache-2.0",
+  "description": "MCP payment tools for AI agents — reference implementation with x402, MPP, and fiat",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test tests/tools.test.js"
+  },
+  "keywords": ["mcp", "payments", "ai-agents", "x402", "mpp", "stablecoin"],
   "author": "Umang Gupta",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/umangbuilds/moltpe-agent-payments.git",
-    "directory": "mcp-server"
-  }
+  "license": "Apache-2.0",
+  "dependencies": {},
+  "private": true
 }
