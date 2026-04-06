@@ -10,7 +10,7 @@
   "keywords": ["mcp", "payments", "ai-agents", "x402", "mpp", "stablecoin"],
   "author": "Umang Gupta",
   "license": "Apache-2.0",
-  "files": ["server.js", "tools", "providers", "middleware", "provider-interface.js", "provider-router.js", "examples", "public", "README.md", "LICENSE", "NOTICE"],
+  "files": ["server.js", "tools", "providers", "middleware", "provider-interface.js", "provider-router.js", "examples", "public", "README.md", "DEMO.md", "LICENSE", "NOTICE"],
   "dependencies": {},
   "repository": {
     "type": "git",
