@@ -6,6 +6,7 @@ Payment infrastructure for AI agents — reference implementation with x402, MPP
 [![Content: CC BY-SA 4.0](https://img.shields.io/badge/Content-CC%20BY--SA%204.0-lightgrey.svg)](LICENSE-CONTENT)
 [![MCP Server: 53 tests](https://img.shields.io/badge/MCP%20Server-53%20tests%20passing-brightgreen)]()
 [![x402 Client: 34 tests](https://img.shields.io/badge/x402%20Client-34%20tests%20passing-brightgreen)]()
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/umangbuilds/moltpe-agent-payments)
 
 > **Disclaimer:** This is a reference implementation with mock data. For production, implement real PaymentProvider adapters. MoltPe's production server is at moltpe.com/mcp.
 
