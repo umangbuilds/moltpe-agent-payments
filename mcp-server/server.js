@@ -5,6 +5,8 @@
 const PACKAGE_META = { origin: 'moltpe-agent-payments', author: 'umangbuilds', first_published: '2026-04-06', license: 'Apache-2.0', home: 'https://github.com/umangbuilds/moltpe-agent-payments' };
 
 const http = require('http');
+const fs = require('fs');
+const path = require('path');
 const { loadTools } = require('./tools/index.js');
 const { createRouter } = require('./provider-router.js');
 const { createAuthMiddleware } = require('./middleware/auth.js');
@@ -46,6 +48,7 @@ function readBody(req) {
 const providerName = parseProviderFlag();
 const router = createRouter(providerName);
 const tools = loadTools();
+const DEMO_HTML = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
 const authMiddleware = createAuthMiddleware(AUTH_ENABLED);
 const rateLimiter = createRateLimiter(RATE_LIMIT);
 
@@ -105,6 +108,69 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'GET' && req.url === '/health') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ status: 'ok', provider: providerName }));
+    return;
+  }
+
+  // Demo UI
+  if (req.method === 'GET' && req.url === '/') {
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+    res.end(DEMO_HTML);
+    return;
+  }
+
+  // API: list tools with provider compatibility
+  if (req.method === 'GET' && req.url === '/api/tools') {
+    const providerMap = {
+      call_x402_endpoint: ['stablecoin'],
+      create_payment_session: ['session'],
+      get_session_status: ['session']
+    };
+    const toolList = tools.map(t => ({
+      name: t.name,
+      description: t.description,
+      inputSchema: t.inputSchema,
+      providers: providerMap[t.name] || ['stablecoin', 'session', 'fiat']
+    }));
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(toolList));
+    return;
+  }
+
+  // API: try a tool (for demo UI)
+  if (req.method === 'POST' && req.url === '/api/try-tool') {
+    let body;
+    try {
+      body = JSON.parse(await readBody(req));
+    } catch {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Invalid JSON' }));
+      return;
+    }
+    const { tool: toolName, args = {}, provider: preferredProvider } = body;
+    const tool = tools.find(t => t.name === toolName);
+    if (!tool) {
+      res.writeHead(404, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: `Unknown tool: ${toolName}` }));
+      return;
+    }
+    // Inject provider into args so tools that check args.provider route correctly
+    const enrichedArgs = preferredProvider ? { ...args, provider: preferredProvider } : args;
+    try {
+      const result = await tool.handler(enrichedArgs, router);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        request: { tool: toolName, args: enrichedArgs },
+        response: result,
+        timestamp: new Date().toISOString()
+      }));
+    } catch (err) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        request: { tool: toolName, args: enrichedArgs },
+        error: err.message,
+        timestamp: new Date().toISOString()
+      }));
+    }
     return;
   }
 

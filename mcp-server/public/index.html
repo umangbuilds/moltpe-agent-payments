@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MoltPe Agent Payments — Reference Implementation</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a0a;
+  --bg-card: #111111;
+  --bg-hover: #1a1a1a;
+  --border: #222222;
+  --text: #e0e0e0;
+  --text-muted: #888888;
+  --accent: #3b82f6;
+  --accent-dim: #1d4ed8;
+  --green: #22c55e;
+  --yellow: #eab308;
+  --red: #ef4444;
+  --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ─── Header ─── */
+.header {
+  border-bottom: 1px solid var(--border);
+  padding: 20px 24px;
+}
+.header h1 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+.header p {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ─── Provider Tabs ─── */
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+}
+.tab {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: var(--font-sans);
+}
+.tab:hover { background: var(--bg-hover); color: var(--text); }
+.tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* ─── Main Content ─── */
+.main {
+  display: flex;
+  flex: 1;
+  gap: 0;
+  min-height: 0;
+}
+
+/* ─── Tool List ─── */
+.tool-panel {
+  width: 220px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  padding: 16px 0;
+}
+.tool-panel-label {
+  padding: 0 16px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+.tool-btn {
+  display: block;
+  width: 100%;
+  padding: 8px 16px;
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 13px;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  transition: background 0.1s;
+  border-left: 2px solid transparent;
+}
+.tool-btn:hover:not(.disabled) { background: var(--bg-hover); }
+.tool-btn.active {
+  background: var(--bg-hover);
+  border-left-color: var(--accent);
+  color: var(--accent);
+}
+.tool-btn.disabled {
+  color: var(--text-muted);
+  cursor: default;
+  opacity: 0.45;
+}
+.tool-badge {
+  font-size: 10px;
+  color: var(--text-muted);
+  display: block;
+  font-family: var(--font-sans);
+  margin-top: 1px;
+}
+
+/* ─── Output Panel ─── */
+.output-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 16px 20px;
+  gap: 16px;
+  overflow-y: auto;
+}
+
+.output-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.output-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+.code-block {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-x: auto;
+  white-space: pre;
+  min-height: 60px;
+}
+.code-block.placeholder {
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 13px;
+}
+
+/* JSON syntax highlighting */
+.json-key { color: #93c5fd; }
+.json-string { color: #86efac; }
+.json-number { color: #fbbf24; }
+.json-bool { color: #f472b6; }
+.json-null { color: #f472b6; }
+
+/* ─── Status Bar ─── */
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 4px 0;
+}
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+.status-dot.loading { background: var(--yellow); animation: pulse 1s infinite; }
+.status-dot.ok { background: var(--green); }
+.status-dot.err { background: var(--red); }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* ─── Session Monitor ─── */
+.session-monitor {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  background: var(--bg-card);
+  display: none;
+}
+.session-monitor.visible { display: block; }
+.session-monitor h3 {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+.session-row {
+  display: flex;
+  gap: 20px;
+  font-size: 13px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.session-stat { display: flex; flex-direction: column; gap: 1px; }
+.session-stat-label { font-size: 11px; color: var(--text-muted); }
+.session-stat-value { font-weight: 600; }
+.progress-bar-track {
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+.progress-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  text-align: right;
+}
+
+/* ─── Invoice Dashboard ─── */
+.invoice-panel {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-card);
+  overflow: hidden;
+}
+.invoice-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.invoice-panel-header h3 {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+.btn-small {
+  padding: 5px 12px;
+  font-size: 12px;
+  border-radius: 5px;
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: all 0.15s;
+}
+.btn-small:hover { background: var(--accent); color: #fff; }
+.invoice-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.invoice-table th {
+  padding: 8px 16px;
+  text-align: left;
+  color: var(--text-muted);
+  font-weight: 500;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.invoice-table td {
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.invoice-table tr:last-child td { border-bottom: none; }
+.invoice-table tr:hover td { background: var(--bg-hover); }
+.invoice-table td:first-child { color: var(--accent); }
+.status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: var(--font-sans);
+  font-weight: 500;
+}
+.status-badge.sent { background: #1e3a5f; color: #93c5fd; }
+.status-badge.paid { background: #14532d; color: #86efac; }
+.status-badge.pending { background: #422006; color: #fcd34d; }
+.status-badge.cancelled { background: #450a0a; color: #fca5a5; }
+.invoice-empty {
+  padding: 20px 16px;
+  color: var(--text-muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* ─── Footer ─── */
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 12px 24px;
+  font-size: 11px;
+  color: var(--text-muted);
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 600px) {
+  .main { flex-direction: column; }
+  .tool-panel {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 12px;
+  }
+  .tool-panel-label { display: none; }
+  .tool-btn {
+    width: auto;
+    padding: 6px 10px;
+    font-size: 11px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    border-left: 2px solid transparent;
+  }
+  .tool-btn.active { border-left-color: var(--accent); }
+  .tabs { padding: 12px; flex-wrap: wrap; }
+  .header { padding: 14px 16px; }
+  .output-panel { padding: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>MoltPe Agent Payments</h1>
+  <p>Reference Implementation — interactive tool explorer</p>
+</div>
+
+<div class="tabs" id="tabs">
+  <button class="tab active" data-provider="stablecoin">Stablecoin / x402</button>
+  <button class="tab" data-provider="session">Session / MPP</button>
+  <button class="tab" data-provider="fiat">Fiat / Card</button>
+</div>
+
+<div class="main">
+  <div class="tool-panel" id="toolPanel">
+    <div class="tool-panel-label">Tools</div>
+    <!-- populated by JS -->
+  </div>
+
+  <div class="output-panel" id="outputPanel">
+    <!-- Session Monitor (hidden unless session tab active) -->
+    <div class="session-monitor" id="sessionMonitor">
+      <h3>Session Monitor</h3>
+      <div class="session-row" id="sessionStats">
+        <div class="session-stat">
+          <span class="session-stat-label">Budget</span>
+          <span class="session-stat-value" id="smBudget">—</span>
+        </div>
+        <div class="session-stat">
+          <span class="session-stat-label">Spent</span>
+          <span class="session-stat-value" id="smSpent">—</span>
+        </div>
+        <div class="session-stat">
+          <span class="session-stat-label">Remaining</span>
+          <span class="session-stat-value" id="smRemaining">—</span>
+        </div>
+        <div class="session-stat">
+          <span class="session-stat-label">Payments</span>
+          <span class="session-stat-value" id="smPayments">—</span>
+        </div>
+      </div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="smProgress" style="width:0%"></div>
+      </div>
+      <div class="progress-label" id="smPercent">No active session</div>
+    </div>
+
+    <!-- Status bar -->
+    <div class="status-bar">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusText">Select a tool to run it</span>
+    </div>
+
+    <!-- Request output -->
+    <div class="output-section" id="requestSection" style="display:none">
+      <div class="output-label">Request</div>
+      <div class="code-block" id="requestBlock"></div>
+    </div>
+
+    <!-- Response output -->
+    <div class="output-section" id="responseSection" style="display:none">
+      <div class="output-label">Response</div>
+      <div class="code-block" id="responseBlock"></div>
+    </div>
+
+    <!-- Welcome placeholder (hides after first tool run) -->
+    <div class="code-block placeholder" id="welcomeBlock">
+      Click any tool on the left to execute it and see the JSON request and response here.
+    </div>
+
+    <!-- Invoice Dashboard -->
+    <div class="invoice-panel" id="invoicePanel">
+      <div class="invoice-panel-header">
+        <h3>Invoice Dashboard</h3>
+        <button class="btn-small" id="createInvoiceBtn">+ Create Invoice</button>
+      </div>
+      <div id="invoiceBody">
+        <div class="invoice-empty" id="invoiceEmpty">No invoices yet. Click "+ Create Invoice" to create one.</div>
+        <table class="invoice-table" id="invoiceTable" style="display:none">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Billed To</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody id="invoiceRows"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="footer">
+  <span>Apache 2.0</span>
+  <a href="https://github.com/umangbuilds/moltpe-agent-payments" target="_blank" rel="noopener">github.com/umangbuilds/moltpe-agent-payments</a>
+  <span>MoltPe Agent Payments v0.1</span>
+</div>
+
+<script>
+// ─── State ───────────────────────────────────────────────────────────────────
+
+var state = {
+  provider: 'stablecoin',
+  activeTool: null,
+  tools: [],
+  invoices: [],
+  sessionId: null,
+  lastSessionData: null
+};
+
+// Tool-to-provider compatibility
+var PROVIDER_MAP = {
+  call_x402_endpoint: ['stablecoin'],
+  create_payment_session: ['session'],
+  get_session_status: ['session']
+};
+
+// Default args for each tool
+var DEFAULT_ARGS = {
+  check_balance:         { agentId: 'agent-alice' },
+  list_transactions:     { agentId: 'agent-alice', limit: 5 },
+  agent_info:            { agentId: 'agent-alice' },
+  send_payment:          { from: 'agent-alice', to: 'agent-bob', amount: 5 },
+  call_x402_endpoint:    { url: 'https://api.example.com/weather', agentId: 'agent-alice' },
+  create_invoice:        { createdBy: 'agent-bob', billedTo: 'agent-alice', amount: 15, currency: 'USDC', description: 'API usage fee' },
+  check_invoice_status:  { invoiceId: 'inv-001' },
+  list_invoices:         { agentId: 'agent-bob' },
+  pay_invoice:           { invoiceId: 'inv-001', payerAgentId: 'agent-alice' },
+  create_payment_session:{ agentId: 'agent-alice', budget: 25, description: 'Research session' },
+  get_session_status:    { sessionId: 'session-001' }
+};
+
+// ─── Utility ─────────────────────────────────────────────────────────────────
+
+function toolAllowedForProvider(toolName, provider) {
+  var allowed = PROVIDER_MAP[toolName];
+  if (!allowed) return true;   // no restriction — works on all
+  return allowed.indexOf(provider) !== -1;
+}
+
+// JSON syntax highlighter (no external libs)
+function highlightJson(obj) {
+  var str = JSON.stringify(obj, null, 2);
+  return str.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function(match) {
+    var cls = 'json-number';
+    if (/^"/.test(match)) {
+      cls = /:$/.test(match) ? 'json-key' : 'json-string';
+    } else if (/true|false/.test(match)) {
+      cls = 'json-bool';
+    } else if (/null/.test(match)) {
+      cls = 'json-null';
+    }
+    return '<span class="' + cls + '">' + escHtml(match) + '</span>';
+  });
+}
+
+function escHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function setStatus(type, text) {
+  var dot = document.getElementById('statusDot');
+  var label = document.getElementById('statusText');
+  dot.className = 'status-dot ' + (type || '');
+  label.textContent = text;
+}
+
+// ─── Fetch helpers ────────────────────────────────────────────────────────────
+
+function fetchTools() {
+  return fetch('/api/tools')
+    .then(function(r) { return r.json(); })
+    .catch(function() { return []; });
+}
+
+function callTool(toolName, args, provider) {
+  return fetch('/api/try-tool', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tool: toolName, args: args, provider: provider })
+  }).then(function(r) { return r.json(); });
+}
+
+// ─── Render tools list ────────────────────────────────────────────────────────
+
+function renderTools() {
+  var panel = document.getElementById('toolPanel');
+  // Clear existing tool buttons but keep the label
+  var label = panel.querySelector('.tool-panel-label');
+  panel.innerHTML = '';
+  if (label) panel.appendChild(label);
+
+  state.tools.forEach(function(tool) {
+    var allowed = toolAllowedForProvider(tool.name, state.provider);
+    var btn = document.createElement('button');
+    btn.className = 'tool-btn' + (allowed ? '' : ' disabled') + (state.activeTool === tool.name ? ' active' : '');
+    btn.setAttribute('data-tool', tool.name);
+
+    var nameSpan = document.createElement('span');
+    nameSpan.textContent = tool.name;
+    btn.appendChild(nameSpan);
+
+    if (!allowed) {
+      var badge = document.createElement('span');
+      badge.className = 'tool-badge';
+      badge.textContent = (PROVIDER_MAP[tool.name] || []).join(', ') + ' only';
+      btn.appendChild(badge);
+      btn.title = 'Not available for ' + state.provider + ' provider';
+    }
+
+    btn.addEventListener('click', function() {
+      if (!allowed) return;
+      runTool(tool.name);
+    });
+
+    panel.appendChild(btn);
+  });
+}
+
+// ─── Run tool ────────────────────────────────────────────────────────────────
+
+function runTool(toolName) {
+  state.activeTool = toolName;
+  renderTools();
+
+  var args = Object.assign({}, DEFAULT_ARGS[toolName] || {});
+
+  // If we have a known session ID, use it for get_session_status
+  if (toolName === 'get_session_status' && state.sessionId) {
+    args.sessionId = state.sessionId;
+  }
+  // If we have invoices from this session, use the last one for status/pay
+  if ((toolName === 'check_invoice_status' || toolName === 'pay_invoice') && state.invoices.length > 0) {
+    args.invoiceId = state.invoices[state.invoices.length - 1].id;
+  }
+
+  setStatus('loading', 'Running ' + toolName + '...');
+
+  // Hide welcome, show sections
+  document.getElementById('welcomeBlock').style.display = 'none';
+  document.getElementById('requestSection').style.display = 'flex';
+  document.getElementById('responseSection').style.display = 'flex';
+
+  var reqBlock = document.getElementById('requestBlock');
+  var resBlock = document.getElementById('responseBlock');
+
+  reqBlock.innerHTML = highlightJson({ tool: toolName, args: args, provider: state.provider });
+  resBlock.className = 'code-block';
+  resBlock.textContent = 'Waiting...';
+
+  callTool(toolName, args, state.provider)
+    .then(function(data) {
+      if (data.error) {
+        resBlock.innerHTML = '<span class="json-string">' + escHtml(data.error) + '</span>';
+        setStatus('err', 'Error from ' + toolName);
+      } else {
+        resBlock.innerHTML = highlightJson(data.response);
+        setStatus('ok', toolName + ' completed');
+      }
+
+      // Side effects
+      handleSideEffects(toolName, args, data);
+    })
+    .catch(function(err) {
+      resBlock.textContent = 'Network error: ' + err.message;
+      setStatus('err', 'Request failed');
+    });
+}
+
+// ─── Side effects after tool run ─────────────────────────────────────────────
+
+function handleSideEffects(toolName, args, data) {
+  if (data.error) return;
+  var resp = data.response;
+
+  // Track session ID
+  if (toolName === 'create_payment_session' && resp && resp.sessionId) {
+    state.sessionId = resp.sessionId;
+    updateSessionMonitor(resp);
+  }
+  if (toolName === 'get_session_status' && resp) {
+    updateSessionMonitor(resp);
+  }
+
+  // Track invoices
+  if (toolName === 'create_invoice' && resp && resp.id) {
+    // Add or update in local list
+    var existing = state.invoices.findIndex(function(inv) { return inv.id === resp.id; });
+    if (existing === -1) {
+      state.invoices.push(resp);
+    } else {
+      state.invoices[existing] = resp;
+    }
+    renderInvoices();
+  }
+  if (toolName === 'pay_invoice' && resp && resp.invoiceId) {
+    // Update invoice status in local list
+    var idx = state.invoices.findIndex(function(inv) { return inv.id === resp.invoiceId; });
+    if (idx !== -1) {
+      state.invoices[idx].status = resp.status || 'paid';
+      renderInvoices();
+    }
+  }
+  if (toolName === 'list_invoices' && resp && Array.isArray(resp.invoices)) {
+    // Merge into local list
+    resp.invoices.forEach(function(inv) {
+      var idx = state.invoices.findIndex(function(i) { return i.id === inv.id; });
+      if (idx === -1) {
+        state.invoices.push(inv);
+      } else {
+        state.invoices[idx] = inv;
+      }
+    });
+    renderInvoices();
+  }
+}
+
+// ─── Session Monitor ──────────────────────────────────────────────────────────
+
+function updateSessionMonitor(data) {
+  if (!data) return;
+  state.lastSessionData = data;
+
+  var budget = data.budget || data.totalBudget || 0;
+  var spent = data.spent || data.totalSpent || 0;
+  var remaining = data.remaining || data.remainingBudget || (budget - spent);
+  var payments = data.paymentCount || data.payments || 0;
+
+  document.getElementById('smBudget').textContent = '$' + Number(budget).toFixed(2);
+  document.getElementById('smSpent').textContent = '$' + Number(spent).toFixed(2);
+  document.getElementById('smRemaining').textContent = '$' + Number(remaining).toFixed(2);
+  document.getElementById('smPayments').textContent = payments;
+
+  var pct = budget > 0 ? Math.min(100, Math.round((spent / budget) * 100)) : 0;
+  document.getElementById('smProgress').style.width = pct + '%';
+  document.getElementById('smPercent').textContent = pct + '% used';
+}
+
+function showSessionMonitor(visible) {
+  var mon = document.getElementById('sessionMonitor');
+  if (visible) {
+    mon.classList.add('visible');
+  } else {
+    mon.classList.remove('visible');
+  }
+}
+
+// ─── Invoice Dashboard ────────────────────────────────────────────────────────
+
+function renderInvoices() {
+  var empty = document.getElementById('invoiceEmpty');
+  var table = document.getElementById('invoiceTable');
+  var tbody = document.getElementById('invoiceRows');
+
+  if (state.invoices.length === 0) {
+    empty.style.display = 'block';
+    table.style.display = 'none';
+    return;
+  }
+
+  empty.style.display = 'none';
+  table.style.display = 'table';
+  tbody.innerHTML = '';
+
+  state.invoices.forEach(function(inv) {
+    var tr = document.createElement('tr');
+    var status = (inv.status || 'pending').toLowerCase();
+    tr.innerHTML =
+      '<td>' + escHtml(String(inv.id || '—')) + '</td>' +
+      '<td>' + escHtml(String(inv.amount || '—')) + ' ' + escHtml(String(inv.currency || '')) + '</td>' +
+      '<td><span class="status-badge ' + escHtml(status) + '">' + escHtml(status) + '</span></td>' +
+      '<td>' + escHtml(String(inv.billedTo || inv.to || '—')) + '</td>' +
+      '<td>' + escHtml(String(inv.description || '—')) + '</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+// ─── Tab switching ────────────────────────────────────────────────────────────
+
+function switchProvider(provider) {
+  state.provider = provider;
+  state.activeTool = null;
+
+  // Update tab styles
+  document.querySelectorAll('.tab').forEach(function(tab) {
+    tab.classList.toggle('active', tab.getAttribute('data-provider') === provider);
+  });
+
+  // Show/hide session monitor
+  showSessionMonitor(provider === 'session');
+
+  // Re-render tools
+  renderTools();
+
+  // Reset output to welcome
+  document.getElementById('welcomeBlock').style.display = 'block';
+  document.getElementById('requestSection').style.display = 'none';
+  document.getElementById('responseSection').style.display = 'none';
+  setStatus('', 'Select a tool to run it');
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+
+document.getElementById('tabs').addEventListener('click', function(e) {
+  var tab = e.target.closest('.tab');
+  if (tab) switchProvider(tab.getAttribute('data-provider'));
+});
+
+document.getElementById('createInvoiceBtn').addEventListener('click', function() {
+  runTool('create_invoice');
+});
+
+fetchTools().then(function(tools) {
+  state.tools = tools;
+  renderTools();
+  setStatus('ok', 'Server connected — ' + tools.length + ' tools available');
+}).catch(function() {
+  setStatus('err', 'Could not load tools from server');
+});
+</script>
+</body>
+</html>
