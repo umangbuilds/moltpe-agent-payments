@@ -1,3 +1,4 @@
+// © 2026 Umang Gupta | Apache-2.0 | github.com/umangbuilds/moltpe-agent-payments
 // create-payment-session.js — Create an MPP payment session.
 // Only works with the session provider.
 

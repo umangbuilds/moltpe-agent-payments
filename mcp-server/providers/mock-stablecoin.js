@@ -1,3 +1,4 @@
+// © 2026 Umang Gupta | Apache-2.0 | github.com/umangbuilds/moltpe-agent-payments
 // mock-stablecoin.js — x402 stablecoin payment provider.
 // Simulates on-chain USDC micropayments across Polygon, Base, and Ethereum.
 

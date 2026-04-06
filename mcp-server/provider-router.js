@@ -1,3 +1,4 @@
+// © 2026 Umang Gupta | Apache-2.0 | github.com/umangbuilds/moltpe-agent-payments
 // provider-router.js — Routes tool calls to the correct payment provider.
 // Supports: stablecoin, session, fiat, all (combines all three).
 

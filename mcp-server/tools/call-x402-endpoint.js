@@ -1,3 +1,4 @@
+// © 2026 Umang Gupta | Apache-2.0 | github.com/umangbuilds/moltpe-agent-payments
 // call-x402-endpoint.js — Call an x402-protected HTTP endpoint.
 // Only works with the stablecoin provider.
 

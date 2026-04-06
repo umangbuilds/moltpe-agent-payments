@@ -1,3 +1,4 @@
+// © 2026 Umang Gupta | Apache-2.0 | github.com/umangbuilds/moltpe-agent-payments
 // types.ts — All TypeScript interfaces for the x402 client SDK.
 
 /**

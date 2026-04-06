@@ -1,3 +1,4 @@
+// © 2026 Umang Gupta | Apache-2.0 | github.com/umangbuilds/moltpe-agent-payments
 // mock-session.js — MPP (Machine Payment Protocol) session-based payment provider.
 // Simulates session-based streaming payments: authorize budget, pay within session, close.
 

@@ -1,3 +1,4 @@
+// © 2026 Umang Gupta | Apache-2.0 | github.com/umangbuilds/moltpe-agent-payments
 // send-payment.js — Send a payment from one agent to another.
 
 module.exports = {

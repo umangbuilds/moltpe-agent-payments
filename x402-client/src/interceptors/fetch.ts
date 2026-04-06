@@ -1,3 +1,4 @@
+// © 2026 Umang Gupta | Apache-2.0 | github.com/umangbuilds/moltpe-agent-payments
 // fetch.ts — Drop-in fetch wrapper that handles x402 payments automatically.
 // Usage: const response = await x402Fetch('https://api.example.com/data', options)
 

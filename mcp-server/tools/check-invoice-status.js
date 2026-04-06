@@ -1,3 +1,4 @@
+// © 2026 Umang Gupta | Apache-2.0 | github.com/umangbuilds/moltpe-agent-payments
 // check-invoice-status.js — Check the status of an invoice.
 
 module.exports = {

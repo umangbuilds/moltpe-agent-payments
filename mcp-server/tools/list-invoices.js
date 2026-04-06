@@ -1,3 +1,4 @@
+// © 2026 Umang Gupta | Apache-2.0 | github.com/umangbuilds/moltpe-agent-payments
 // list-invoices.js — List invoices for an agent.
 
 module.exports = {

@@ -1,3 +1,4 @@
+// © 2026 Umang Gupta | Apache-2.0 | github.com/umangbuilds/moltpe-agent-payments
 // mock-fiat.js — Fiat payment provider (card + bank transfer).
 // Supports USD, INR, AED. NO UPI (requires PSP license from NPCI).
 
