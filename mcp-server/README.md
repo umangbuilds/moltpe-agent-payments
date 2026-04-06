@@ -16,6 +16,12 @@ npm start
 
 The server starts on port 3000 with all three providers loaded.
 
+## Interactive Demo
+
+Start the server and visit http://localhost:3000 in your browser for a visual tool explorer. Click any tool to see its request/response JSON. Switch between Stablecoin, Session, and Fiat providers.
+
+See [DEMO.md](DEMO.md) for a full walkthrough.
+
 ## Provider Flags
 
 ```bash

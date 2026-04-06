@@ -30,6 +30,12 @@ cd x402-client && npm install && npm run build
 
 See [mcp-server/README.md](mcp-server/README.md) and [x402-client/README.md](x402-client/README.md) for full usage.
 
+## Demo
+
+Run `npm start` in the mcp-server directory and open http://localhost:3000 for an interactive demo. The UI lets you explore all 11 payment tools across three provider types.
+
+See [mcp-server/DEMO.md](mcp-server/DEMO.md) for a step-by-step walkthrough.
+
 ## What's Inside
 
 | Directory | Description |

@@ -602,7 +602,7 @@ function runTool(toolName) {
   }
   // If we have invoices from this session, use the last one for status/pay
   if ((toolName === 'check_invoice_status' || toolName === 'pay_invoice') && state.invoices.length > 0) {
-    args.invoiceId = state.invoices[state.invoices.length - 1].id;
+    args.invoiceId = state.invoices[state.invoices.length - 1].invoiceId;
   }
 
   setStatus('loading', 'Running ' + toolName + '...');
@@ -653,10 +653,9 @@ function handleSideEffects(toolName, args, data) {
     updateSessionMonitor(resp);
   }
 
-  // Track invoices
-  if (toolName === 'create_invoice' && resp && resp.id) {
-    // Add or update in local list
-    var existing = state.invoices.findIndex(function(inv) { return inv.id === resp.id; });
+  // Track invoices (invoices use invoiceId field, not id)
+  if (toolName === 'create_invoice' && resp && resp.invoiceId) {
+    var existing = state.invoices.findIndex(function(inv) { return inv.invoiceId === resp.invoiceId; });
     if (existing === -1) {
       state.invoices.push(resp);
     } else {
@@ -665,17 +664,16 @@ function handleSideEffects(toolName, args, data) {
     renderInvoices();
   }
   if (toolName === 'pay_invoice' && resp && resp.invoiceId) {
-    // Update invoice status in local list
-    var idx = state.invoices.findIndex(function(inv) { return inv.id === resp.invoiceId; });
+    var idx = state.invoices.findIndex(function(inv) { return inv.invoiceId === resp.invoiceId; });
     if (idx !== -1) {
       state.invoices[idx].status = resp.status || 'paid';
       renderInvoices();
     }
   }
-  if (toolName === 'list_invoices' && resp && Array.isArray(resp.invoices)) {
-    // Merge into local list
-    resp.invoices.forEach(function(inv) {
-      var idx = state.invoices.findIndex(function(i) { return i.id === inv.id; });
+  if (toolName === 'list_invoices' && resp && Array.isArray(resp)) {
+    // list_invoices returns an array directly
+    resp.forEach(function(inv) {
+      var idx = state.invoices.findIndex(function(i) { return i.invoiceId === inv.invoiceId; });
       if (idx === -1) {
         state.invoices.push(inv);
       } else {
@@ -737,7 +735,7 @@ function renderInvoices() {
     var tr = document.createElement('tr');
     var status = (inv.status || 'pending').toLowerCase();
     tr.innerHTML =
-      '<td>' + escHtml(String(inv.id || '—')) + '</td>' +
+      '<td>' + escHtml(String(inv.invoiceId || '—')) + '</td>' +
       '<td>' + escHtml(String(inv.amount || '—')) + ' ' + escHtml(String(inv.currency || '')) + '</td>' +
       '<td><span class="status-badge ' + escHtml(status) + '">' + escHtml(status) + '</span></td>' +
       '<td>' + escHtml(String(inv.billedTo || inv.to || '—')) + '</td>' +
