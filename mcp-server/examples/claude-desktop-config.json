@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "moltpe-payments": {
+      "command": "node",
+      "args": ["/path/to/mcp-server/server.js", "--provider", "all"],
+      "env": {
+        "AUTH_ENABLED": "false"
+      }
+    }
+  }
+}

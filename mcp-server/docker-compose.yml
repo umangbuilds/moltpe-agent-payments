@@ -1,0 +1,8 @@
+services:
+  mcp-server:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - PROVIDER=all
+      - AUTH_ENABLED=false
