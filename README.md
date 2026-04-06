@@ -4,8 +4,10 @@ Payment infrastructure for AI agents — reference implementation with x402, MPP
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Content: CC BY-SA 4.0](https://img.shields.io/badge/Content-CC%20BY--SA%204.0-lightgrey.svg)](LICENSE-CONTENT)
-[![MCP Server: 53 tests](https://img.shields.io/badge/MCP%20Server-53%20tests%20passing-brightgreen)]()
-[![x402 Client: 34 tests](https://img.shields.io/badge/x402%20Client-34%20tests%20passing-brightgreen)]()
+[![Tests](https://github.com/umangbuilds/moltpe-agent-payments/actions/workflows/tests.yml/badge.svg)](https://github.com/umangbuilds/moltpe-agent-payments/actions/workflows/tests.yml)
+[![npm: mcp-payments](https://img.shields.io/npm/v/@moltpe/mcp-payments?label=mcp-payments)](https://www.npmjs.com/package/@moltpe/mcp-payments)
+[![npm: x402-client](https://img.shields.io/npm/v/@moltpe/x402-client?label=x402-client)](https://www.npmjs.com/package/@moltpe/x402-client)
+[![Zero Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](https://github.com/umangbuilds/moltpe-agent-payments)
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/umangbuilds/moltpe-agent-payments)
 
 > **Disclaimer:** This is a reference implementation with mock data. For production, implement real PaymentProvider adapters. MoltPe's production server is at moltpe.com/mcp.
@@ -80,6 +82,14 @@ See [NOTICE](NOTICE) for attribution details.
   license = {Apache-2.0}
 }
 ```
+
+## Built With
+
+This entire repo was built in one evening using autonomous Claude Code orchestration:
+- 87 tests across 2 packages, zero failures
+- Zero runtime dependencies in both packages
+- 4 build rounds, ~8 hours Claude Code, ~1.5 hours human time
+- [Build playbook](playbook/) documents the exact process and templates
 
 ## Author
 

@@ -54,6 +54,25 @@ Invoice operations (create, check, list, pay) work across all three payment prov
 | Runtime dependencies | 0 |
 | External services required | None (all mock data) |
 
+## Third-Party Verification
+- npm audit: 0 vulnerabilities (both packages)
+- Runtime dependencies: 0 (both packages — pure Node.js)
+- Socket.dev scan: [view](https://socket.dev/npm/package/@moltpe/mcp-payments)
+- CI: GitHub Actions runs all 87 tests on every push
+
+## Architecture Quality
+- Provider interface pattern: pluggable adapters, swap mock for real without changing tools
+- Tri-rail design: stablecoin + MPP session + fiat through unified tool interface
+- Collections layer: payment-method-agnostic invoicing above all three rails
+- Auth: timing-safe bearer token comparison (crypto.timingSafeEqual)
+- Rate limiting: in-memory token bucket, configurable per-IP
+
+## Code Fingerprints
+- Copyright headers in all 29 source files
+- PACKAGE_META / X402_CLIENT_META build fingerprints in both packages
+- NOTICE file included in both npm packages
+- First published: April 6, 2026 (GitHub + npm + Wayback Machine)
+
 ## Note
 
 This is a reference implementation with mock data. No real payments are processed. All balances, transactions, and payments are simulated in-memory and reset on server restart. For production, implement real PaymentProvider adapters and connect to actual payment facilitators.
