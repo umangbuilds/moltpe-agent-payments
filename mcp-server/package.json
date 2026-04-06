@@ -1,6 +1,6 @@
 {
   "name": "@moltpe/mcp-payments",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "MCP payment tools for AI agents — reference implementation with x402, MPP, and fiat",
   "main": "server.js",
   "scripts": {
