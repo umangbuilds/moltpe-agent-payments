@@ -1,3 +1,4 @@
+// © 2026 Umang Gupta | Apache-2.0 | github.com/umangbuilds/moltpe-agent-payments
 // middleware/rate-limit.js — In-memory token bucket rate limiter per IP.
 
 function createRateLimiter(maxRequests) {

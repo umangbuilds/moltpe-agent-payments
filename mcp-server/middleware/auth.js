@@ -1,3 +1,4 @@
+// © 2026 Umang Gupta | Apache-2.0 | github.com/umangbuilds/moltpe-agent-payments
 // middleware/auth.js — Bearer token authentication for the MCP server.
 // Uses timing-safe comparison to prevent timing attacks on token validation.
 

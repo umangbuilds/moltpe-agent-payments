@@ -1,3 +1,4 @@
+// © 2026 Umang Gupta | Apache-2.0 | github.com/umangbuilds/moltpe-agent-payments
 // utils.ts — Helper functions for parsing x402 payment requirements.
 
 import { PaymentRequirements, CostEstimate } from './types.js';

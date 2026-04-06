@@ -1,3 +1,4 @@
+// © 2026 Umang Gupta | Apache-2.0 | github.com/umangbuilds/moltpe-agent-payments
 // check-balance.js — Get agent balance across payment rails.
 
 module.exports = {

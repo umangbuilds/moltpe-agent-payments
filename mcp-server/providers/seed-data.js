@@ -1,3 +1,4 @@
+// © 2026 Umang Gupta | Apache-2.0 | github.com/umangbuilds/moltpe-agent-payments
 // seed-data.js — Shared test agents and balances for all mock providers.
 // All data is in-memory and resets on server restart.
 

@@ -1,3 +1,4 @@
+// © 2026 Umang Gupta | Apache-2.0 | github.com/umangbuilds/moltpe-agent-payments
 // client.ts — Core x402 payment client.
 // Handles the full 402 Payment Required flow: detect → pay → retry.
 

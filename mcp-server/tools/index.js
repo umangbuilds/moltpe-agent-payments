@@ -1,3 +1,4 @@
+// © 2026 Umang Gupta | Apache-2.0 | github.com/umangbuilds/moltpe-agent-payments
 // tools/index.js — Loads and exports all MCP tool definitions.
 
 const checkBalance = require('./check-balance.js');

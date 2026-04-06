@@ -1,3 +1,4 @@
+// © 2026 Umang Gupta | Apache-2.0 | github.com/umangbuilds/moltpe-agent-payments
 // pay-invoice.js — Pay an invoice through any loaded payment provider.
 // Demonstrates the collections layer: invoice is payment-method-agnostic.
 

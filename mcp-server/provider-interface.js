@@ -1,3 +1,4 @@
+// © 2026 Umang Gupta | Apache-2.0 | github.com/umangbuilds/moltpe-agent-payments
 // provider-interface.js — PaymentProvider contract
 // Documents the interface every provider must implement.
 // JavaScript has no interfaces, so this serves as documentation and validation.

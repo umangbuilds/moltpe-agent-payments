@@ -1,3 +1,4 @@
+// © 2026 Umang Gupta | Apache-2.0 | github.com/umangbuilds/moltpe-agent-payments
 // generic.ts — Generic facilitator adapter.
 // Works with any x402-compatible facilitator (xpay.sh, Coinbase CDP, custom).
 

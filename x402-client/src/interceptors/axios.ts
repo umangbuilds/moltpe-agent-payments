@@ -1,3 +1,4 @@
+// © 2026 Umang Gupta | Apache-2.0 | github.com/umangbuilds/moltpe-agent-payments
 // axios.ts — Axios response interceptor for automatic x402 payment handling.
 // Usage: axios.interceptors.response.use(undefined, x402AxiosInterceptor(options))
 

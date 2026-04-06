@@ -1,3 +1,4 @@
+// © 2026 Umang Gupta | Apache-2.0 | github.com/umangbuilds/moltpe-agent-payments
 // get-session-status.js — Check status of an MPP payment session.
 
 module.exports = {

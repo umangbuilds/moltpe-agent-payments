@@ -1,5 +1,8 @@
+// © 2026 Umang Gupta | Apache-2.0 | github.com/umangbuilds/moltpe-agent-payments
 // server.js — MCP Payment Server (Streamable HTTP)
 // Reference implementation for AI agent payments via x402, MPP, and fiat rails.
+
+const PACKAGE_META = { origin: 'moltpe-agent-payments', author: 'umangbuilds', first_published: '2026-04-06', license: 'Apache-2.0', home: 'https://github.com/umangbuilds/moltpe-agent-payments' };
 
 const http = require('http');
 const { loadTools } = require('./tools/index.js');
