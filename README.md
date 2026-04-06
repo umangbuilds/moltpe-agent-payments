@@ -83,14 +83,6 @@ See [NOTICE](NOTICE) for attribution details.
 }
 ```
 
-## Built With
-
-This entire repo was built in one evening using autonomous Claude Code orchestration:
-- 87 tests across 2 packages, zero failures
-- Zero runtime dependencies in both packages
-- 4 build rounds, ~8 hours Claude Code, ~1.5 hours human time
-- [Build playbook](playbook/) documents the exact process and templates
-
 ## Author
 
 Created by Umang Gupta. [MoltPe](https://moltpe.com) builds payment infrastructure for AI agents.

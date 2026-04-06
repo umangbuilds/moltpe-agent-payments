@@ -67,12 +67,6 @@ Invoice operations (create, check, list, pay) work across all three payment prov
 - Auth: timing-safe bearer token comparison (crypto.timingSafeEqual)
 - Rate limiting: in-memory token bucket, configurable per-IP
 
-## Code Fingerprints
-- Copyright headers in all 29 source files
-- PACKAGE_META / X402_CLIENT_META build fingerprints in both packages
-- NOTICE file included in both npm packages
-- First published: April 6, 2026 (GitHub + npm + Wayback Machine)
-
 ## Note
 
 This is a reference implementation with mock data. No real payments are processed. All balances, transactions, and payments are simulated in-memory and reset on server restart. For production, implement real PaymentProvider adapters and connect to actual payment facilitators.
