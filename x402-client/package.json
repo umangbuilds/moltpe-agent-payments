@@ -24,6 +24,14 @@
     "typescript": "^5.4.0",
     "tsx": "^4.0.0"
   },
-  "private": true,
-  "files": ["dist", "README.md", "LICENSE"]
+  "files": ["dist", "README.md", "LICENSE"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/umangbuilds/moltpe-agent-payments",
+    "directory": "x402-client"
+  },
+  "homepage": "https://github.com/umangbuilds/moltpe-agent-payments/tree/main/x402-client",
+  "bugs": {
+    "url": "https://github.com/umangbuilds/moltpe-agent-payments/issues"
+  }
 }

@@ -11,5 +11,13 @@
   "author": "Umang Gupta",
   "license": "Apache-2.0",
   "dependencies": {},
-  "private": true
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/umangbuilds/moltpe-agent-payments",
+    "directory": "mcp-server"
+  },
+  "homepage": "https://github.com/umangbuilds/moltpe-agent-payments/tree/main/mcp-server",
+  "bugs": {
+    "url": "https://github.com/umangbuilds/moltpe-agent-payments/issues"
+  }
 }

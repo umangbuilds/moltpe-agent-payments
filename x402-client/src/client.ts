@@ -5,8 +5,7 @@ import {
   PaymentOptions,
   PaymentResult,
   CostEstimate,
-  ClientConfig,
-  SignerFunction
+  ClientConfig
 } from './types.js';
 
 import {
