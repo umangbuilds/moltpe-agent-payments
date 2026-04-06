@@ -1,0 +1,13 @@
+{
+  "name": "@moltpe/mcp-payments",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MCP server for agent payment operations",
+  "license": "Apache-2.0",
+  "author": "Umang Gupta",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/umangbuilds/moltpe-agent-payments.git",
+    "directory": "mcp-server"
+  }
+}

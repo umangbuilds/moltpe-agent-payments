@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+title: "MoltPe Agent Payments"
+authors:
+  - family-names: "Gupta"
+    given-names: "Umang"
+type: software
+license: Apache-2.0
+repository-code: "https://github.com/umangbuilds/moltpe-agent-payments"
+url: "https://moltpe.com"
+date-released: "2026-04-06"
+keywords:
+  - ai-agents
+  - payments
+  - x402
+  - mcp
+  - stablecoin
