@@ -97,6 +97,22 @@ Or with docker-compose:
 docker-compose up
 ```
 
+## Connect to Live
+
+By default, the server runs with mock providers — no real money, no real transactions.
+
+To connect to MoltPe's production MCP server:
+
+```bash
+PROVIDER_MODE=live \
+MOLTPE_AGENT_TOKEN=swai_your_agent_token \
+npm start
+```
+
+In live mode, all tool calls forward to moltpe.com/mcp. Transactions settle in real USDC on Polygon PoS or Base.
+
+Get an agent token: visit moltpe.com/dashboard to create an agent and copy its API key.
+
 ## Environment Variables
 
 | Variable | Default | Description |
@@ -104,6 +120,9 @@ docker-compose up
 | PORT | 3000 | Server port |
 | AUTH_ENABLED | false | Require bearer token authentication |
 | RATE_LIMIT | 60 | Max requests per minute per IP |
+| PROVIDER_MODE | mock | `mock` for simulated data, `live` for real MCP forwarding |
+| MOLTPE_MCP_URL | https://moltpe.com/mcp | MCP server URL for live mode |
+| MOLTPE_AGENT_TOKEN | — | Agent bearer token (required for live mode) |
 
 ## Examples
 

@@ -5,6 +5,7 @@
 const PACKAGE_META = { origin: 'moltpe-agent-payments', author: 'umangbuilds', first_published: '2026-04-06', license: 'Apache-2.0', home: 'https://github.com/umangbuilds/moltpe-agent-payments' };
 
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const { loadTools } = require('./tools/index.js');
@@ -15,6 +16,17 @@ const { createRateLimiter } = require('./middleware/rate-limit.js');
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const AUTH_ENABLED = process.env.AUTH_ENABLED === 'true';
 const RATE_LIMIT = parseInt(process.env.RATE_LIMIT || '60', 10);
+const PROVIDER_MODE = process.env.PROVIDER_MODE || 'mock';
+if (!['mock', 'live'].includes(PROVIDER_MODE)) {
+  console.error(`Invalid PROVIDER_MODE: ${PROVIDER_MODE}. Valid: mock, live`);
+  process.exit(1);
+}
+const MOLTPE_MCP_URL = process.env.MOLTPE_MCP_URL || 'https://moltpe.com/mcp';
+const MOLTPE_AGENT_TOKEN = process.env.MOLTPE_AGENT_TOKEN || '';
+if (PROVIDER_MODE === 'live' && !MOLTPE_AGENT_TOKEN) {
+  console.error('PROVIDER_MODE=live requires MOLTPE_AGENT_TOKEN to be set. Exiting.');
+  process.exit(1);
+}
 
 function parseProviderFlag() {
   const flagIndex = process.argv.indexOf('--provider');
@@ -92,6 +104,72 @@ async function handleToolsCall(id, params) {
   }
 }
 
+// Forward a tool call to the live MoltPe MCP server
+async function forwardToLiveMcp(toolName, args) {
+  const rpcBody = JSON.stringify({
+    jsonrpc: '2.0',
+    id: Date.now(),
+    method: 'tools/call',
+    params: { name: toolName, arguments: args }
+  });
+
+  const url = new URL(MOLTPE_MCP_URL);
+  const options = {
+    hostname: url.hostname,
+    port: url.port || (url.protocol === 'https:' ? 443 : 80),
+    path: url.pathname,
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Length': Buffer.byteLength(rpcBody),
+      'Authorization': `Bearer ${MOLTPE_AGENT_TOKEN}`
+    }
+  };
+
+  const transport = url.protocol === 'https:' ? https : http;
+
+  return new Promise((resolve, reject) => {
+    const mcpReq = transport.request(options, (mcpRes) => {
+      const chunks = [];
+      mcpRes.on('data', chunk => chunks.push(chunk));
+      mcpRes.on('end', () => {
+        const raw = Buffer.concat(chunks).toString();
+        try {
+          const parsed = JSON.parse(raw);
+          if (parsed.error) {
+            reject(new Error(parsed.error.message || 'MCP server error'));
+          } else if (parsed.result && parsed.result.content) {
+            // Extract text content from MCP response
+            const textContent = parsed.result.content.find(c => c.type === 'text');
+            if (textContent) {
+              try { resolve(JSON.parse(textContent.text)); }
+              catch { resolve({ raw: textContent.text }); }
+            } else {
+              resolve(parsed.result);
+            }
+          } else {
+            resolve(parsed.result || parsed);
+          }
+        } catch {
+          reject(new Error('Invalid response from MCP server'));
+        }
+      });
+    });
+
+    mcpReq.on('error', (err) => {
+      reject(new Error(`Could not reach MCP server: ${err.message}`));
+    });
+
+    mcpReq.setTimeout(15000, () => {
+      mcpReq.destroy();
+      reject(new Error('MCP server request timed out'));
+    });
+
+    mcpReq.write(rpcBody);
+    mcpReq.end();
+  });
+}
+
 const server = http.createServer(async (req, res) => {
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -115,6 +193,13 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'GET' && req.url === '/') {
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     res.end(DEMO_HTML);
+    return;
+  }
+
+  // API: current provider mode
+  if (req.method === 'GET' && req.url === '/api/mode') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ mode: PROVIDER_MODE }));
     return;
   }
 
@@ -153,8 +238,39 @@ const server = http.createServer(async (req, res) => {
       res.end(JSON.stringify({ error: `Unknown tool: ${toolName}` }));
       return;
     }
-    // Inject provider into args so tools that check args.provider route correctly
     const enrichedArgs = preferredProvider ? { ...args, provider: preferredProvider } : args;
+
+    // Live mode: forward tool call to MoltPe MCP server
+    if (PROVIDER_MODE === 'live') {
+      if (!MOLTPE_AGENT_TOKEN) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          request: { tool: toolName, args: enrichedArgs },
+          error: 'Set MOLTPE_AGENT_TOKEN env var to use live mode',
+          timestamp: new Date().toISOString()
+        }));
+        return;
+      }
+      try {
+        const result = await forwardToLiveMcp(toolName, enrichedArgs);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          request: { tool: toolName, args: enrichedArgs },
+          response: result,
+          timestamp: new Date().toISOString()
+        }));
+      } catch (err) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          request: { tool: toolName, args: enrichedArgs },
+          error: err.message,
+          timestamp: new Date().toISOString()
+        }));
+      }
+      return;
+    }
+
+    // Mock mode: use local providers
     try {
       const result = await tool.handler(enrichedArgs, router);
       res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -247,7 +363,10 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`MCP Payment Server running on port ${PORT} (provider: ${providerName})`);
+  console.log(`MCP Payment Server running on port ${PORT} (provider: ${providerName}, mode: ${PROVIDER_MODE})`);
+  if (PROVIDER_MODE === 'live') {
+    console.log(`  Live mode: forwarding to ${MOLTPE_MCP_URL}`);
+  }
 });
 
 module.exports = { server };

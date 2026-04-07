@@ -68,6 +68,33 @@ body {
   letter-spacing: 0.04em;
 }
 .header-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.mode-badge {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: var(--r-badge);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.mode-badge .mode-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+}
+.mode-mock { background: rgba(34,197,94,0.15); color: var(--success); border: 1px solid rgba(34,197,94,0.3); }
+.mode-mock .mode-dot { background: var(--success); }
+.mode-live { background: rgba(239,68,68,0.15); color: var(--error); border: 1px solid rgba(239,68,68,0.3); }
+.mode-live .mode-dot { background: var(--error); }
+.live-warning {
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.2);
+  border-radius: var(--r-input);
+  padding: 8px 12px;
+  font-size: 11px;
+  color: var(--error);
+  margin: 0 20px;
+  flex-shrink: 0;
+}
 .npm-badge {
   font-size: 10px;
   padding: 2px 7px;
@@ -898,6 +925,7 @@ select { cursor: pointer; }
     <span class="ref-badge">Reference Implementation</span>
   </div>
   <div class="header-right">
+    <span class="mode-badge" id="modeBadge" style="display:none"></span>
     <a class="npm-badge" href="https://www.npmjs.com/package/@moltpe/mcp-payments" target="_blank" rel="noopener">@moltpe/mcp-payments</a>
     <a class="gh-link" href="https://github.com/umangbuilds/moltpe-agent-payments" target="_blank" rel="noopener">
       <svg class="gh-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
@@ -1956,16 +1984,34 @@ document.getElementById('toolMobileSelect').addEventListener('change', function(
 });
 
 // ── Load tools ────────────────────────────────────────────────────────────────
+// Fetch provider mode and show badge
+fetch('/api/mode')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    var badge = document.getElementById('modeBadge');
+    var isLive = data.mode === 'live';
+    badge.className = 'mode-badge ' + (isLive ? 'mode-live' : 'mode-mock');
+    badge.innerHTML = '<span class="mode-dot"></span>' + (isLive ? 'Live' : 'Mock');
+    badge.style.display = 'inline-flex';
+
+    if (isLive) {
+      var warn = document.createElement('div');
+      warn.className = 'live-warning';
+      warn.textContent = 'Live mode: transactions use real USDC on-chain.';
+      var header = document.querySelector('.site-header');
+      header.parentNode.insertBefore(warn, header.nextSibling);
+    }
+  })
+  .catch(function() { /* mode endpoint not available, hide badge */ });
+
 fetch('/api/tools')
   .then(function(r) { return r.json(); })
   .then(function(tools) {
     S.tools = tools;
-    // Default tab
     switchTab('x402');
     setStatus('ok', tools.length + ' tools loaded');
   })
   .catch(function() {
-    // Tools API failed — use built-in list
     S.tools = Object.keys(TOOL_DESCS).map(function(name) {
       return { name: name, description: TOOL_DESCS[name] };
     });
