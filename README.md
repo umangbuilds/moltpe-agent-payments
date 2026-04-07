@@ -74,7 +74,39 @@ This implementation supports three parallel payment paths:
 - **Path B — Session-based (MPP):** Authorize a budget, stream payments within a session
 - **Path C — Fiat:** Traditional card authorization, capture, and settlement
 
-Each path serves different use cases. A collections layer sits above all three to handle agent receivables. See [docs/tri-rail-architecture.md](docs/tri-rail-architecture.md) for the full breakdown.
+Each path serves different use cases. A collections layer sits above all three to handle agent receivables.
+
+```mermaid
+flowchart TD
+    Agent[AI Agent] --> Collections[Collections Layer<br/>Invoicing · Billing · Receivables]
+
+    Collections --> A[Stablecoin Path<br/>x402]
+    Collections --> B[Session Path<br/>MPP]
+    Collections --> C[Fiat Path<br/>Card / Bank]
+
+    A --> A1[USDC Micropayments]
+    A1 --> A2[On-chain Settlement<br/>Polygon · Base]
+
+    B --> B1[Budget Sessions]
+    B1 --> B2[Streaming Settlement<br/>Tempo Network]
+
+    C --> C1[Card Authorization]
+    C1 --> C2[Gateway Settlement<br/>Razorpay · Stripe]
+
+    classDef agent fill:#0ea5e9,stroke:#0284c7,color:#fff
+    classDef collections fill:#f59e0b,stroke:#d97706,color:#fff
+    classDef x402 fill:#22d3ee,stroke:#06b6d4,color:#000
+    classDef mpp fill:#a78bfa,stroke:#8b5cf6,color:#000
+    classDef fiat fill:#34d399,stroke:#10b981,color:#000
+
+    class Agent agent
+    class Collections collections
+    class A,A1,A2 x402
+    class B,B1,B2 mpp
+    class C,C1,C2 fiat
+```
+
+See [docs/tri-rail-architecture.md](docs/tri-rail-architecture.md) for the full breakdown.
 
 ## Research Highlights
 
