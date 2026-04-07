@@ -6,3 +6,7 @@ services:
     environment:
       - PROVIDER=all
       - AUTH_ENABLED=false
+      # Uncomment for live mode:
+      # - PROVIDER_MODE=live
+      # - MOLTPE_AGENT_TOKEN=swai_your_agent_token
+      # - MOLTPE_MCP_URL=https://moltpe.com/mcp
