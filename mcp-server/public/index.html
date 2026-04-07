@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+<!-- MoltPe Agent Payments — Reference Implementation UI
+     Single-file: all CSS and JS inline. No external deps. Works offline after load. -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -8,784 +10,1968 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #0a0a0a;
-  --bg-card: #111111;
-  --bg-hover: #1a1a1a;
-  --border: #222222;
-  --text: #e0e0e0;
-  --text-muted: #888888;
-  --accent: #3b82f6;
-  --accent-dim: #1d4ed8;
-  --green: #22c55e;
-  --yellow: #eab308;
-  --red: #ef4444;
-  --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --bg:        #09090b;
+  --surface:   #18181b;
+  --border:    #27272a;
+  --text:      #fafafa;
+  --muted:     #a1a1aa;
+  --cyan:      #22d3ee;
+  --violet:    #a78bfa;
+  --emerald:   #34d399;
+  --success:   #22c55e;
+  --warning:   #eab308;
+  --error:     #ef4444;
+  --r-card:    8px;
+  --r-input:   6px;
+  --r-badge:   4px;
+  --font:      system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --mono:      ui-monospace, 'SF Mono', 'Cascadia Code', Consolas, monospace;
 }
 
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: var(--font-sans);
-  font-size: 14px;
-  line-height: 1.6;
+  font-family: var(--font);
+  font-size: 13px;
+  line-height: 1.5;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
 
-a { color: var(--accent); text-decoration: none; }
-a:hover { text-decoration: underline; }
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-/* ─── Header ─── */
-.header {
+/* ── Header ── */
+.site-header {
   border-bottom: 1px solid var(--border);
-  padding: 20px 24px;
-}
-.header h1 {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text);
-  letter-spacing: -0.02em;
-}
-.header p {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-top: 2px;
-}
-
-/* ─── Provider Tabs ─── */
-.tabs {
-  display: flex;
-  gap: 4px;
-  padding: 16px 24px;
-  border-bottom: 1px solid var(--border);
-}
-.tab {
-  padding: 6px 14px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.15s;
-  font-family: var(--font-sans);
-}
-.tab:hover { background: var(--bg-hover); color: var(--text); }
-.tab.active {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
-}
-
-/* ─── Main Content ─── */
-.main {
-  display: flex;
-  flex: 1;
-  gap: 0;
-  min-height: 0;
-}
-
-/* ─── Tool List ─── */
-.tool-panel {
-  width: 220px;
-  flex-shrink: 0;
-  border-right: 1px solid var(--border);
-  padding: 16px 0;
-}
-.tool-panel-label {
-  padding: 0 16px 8px;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
-}
-.tool-btn {
-  display: block;
-  width: 100%;
-  padding: 8px 16px;
-  text-align: left;
-  background: transparent;
-  border: none;
-  color: var(--text);
-  font-size: 13px;
-  font-family: var(--font-mono);
-  cursor: pointer;
-  transition: background 0.1s;
-  border-left: 2px solid transparent;
-}
-.tool-btn:hover:not(.disabled) { background: var(--bg-hover); }
-.tool-btn.active {
-  background: var(--bg-hover);
-  border-left-color: var(--accent);
-  color: var(--accent);
-}
-.tool-btn.disabled {
-  color: var(--text-muted);
-  cursor: default;
-  opacity: 0.45;
-}
-.tool-badge {
-  font-size: 10px;
-  color: var(--text-muted);
-  display: block;
-  font-family: var(--font-sans);
-  margin-top: 1px;
-}
-
-/* ─── Output Panel ─── */
-.output-panel {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  padding: 16px 20px;
-  gap: 16px;
-  overflow-y: auto;
-}
-
-.output-section {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.output-label {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
-}
-.code-block {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 14px 16px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  line-height: 1.7;
-  overflow-x: auto;
-  white-space: pre;
-  min-height: 60px;
-}
-.code-block.placeholder {
-  color: var(--text-muted);
-  font-family: var(--font-sans);
-  font-size: 13px;
-}
-
-/* JSON syntax highlighting */
-.json-key { color: #93c5fd; }
-.json-string { color: #86efac; }
-.json-number { color: #fbbf24; }
-.json-bool { color: #f472b6; }
-.json-null { color: #f472b6; }
-
-/* ─── Status Bar ─── */
-.status-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: var(--text-muted);
-  padding: 4px 0;
-}
-.status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--text-muted);
-}
-.status-dot.loading { background: var(--yellow); animation: pulse 1s infinite; }
-.status-dot.ok { background: var(--green); }
-.status-dot.err { background: var(--red); }
-@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-
-/* ─── Session Monitor ─── */
-.session-monitor {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 14px 16px;
-  background: var(--bg-card);
-  display: none;
-}
-.session-monitor.visible { display: block; }
-.session-monitor h3 {
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
-  margin-bottom: 10px;
-}
-.session-row {
-  display: flex;
-  gap: 20px;
-  font-size: 13px;
-  margin-bottom: 8px;
-  flex-wrap: wrap;
-}
-.session-stat { display: flex; flex-direction: column; gap: 1px; }
-.session-stat-label { font-size: 11px; color: var(--text-muted); }
-.session-stat-value { font-weight: 600; }
-.progress-bar-track {
-  height: 6px;
-  background: var(--border);
-  border-radius: 3px;
-  overflow: hidden;
-  margin-top: 8px;
-}
-.progress-bar-fill {
-  height: 100%;
-  background: var(--accent);
-  border-radius: 3px;
-  transition: width 0.4s ease;
-}
-.progress-label {
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-top: 4px;
-  text-align: right;
-}
-
-/* ─── Invoice Dashboard ─── */
-.invoice-panel {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--bg-card);
-  overflow: hidden;
-}
-.invoice-panel-header {
+  padding: 12px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  background: var(--surface);
+  gap: 12px;
 }
-.invoice-panel-header h3 {
+.header-left { display: flex; align-items: center; gap: 12px; }
+.wordmark { font-size: 16px; font-weight: 700; letter-spacing: -0.03em; color: var(--text); }
+.wordmark span { font-weight: 300; color: var(--muted); }
+.ref-badge {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: var(--r-badge);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+.header-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.npm-badge {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: var(--r-badge);
+  background: #1a1a2e;
+  border: 1px solid #3b3b6b;
+  color: #818cf8;
+  font-family: var(--mono);
+  text-decoration: none;
+}
+.npm-badge:hover { background: #2a2a4e; }
+.gh-link {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.gh-link:hover { color: var(--text); }
+.gh-icon { width: 15px; height: 15px; fill: currentColor; }
+
+/* ── Layout ── */
+.app-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ── Left Sidebar ── */
+.left-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+/* Provider tabs */
+.provider-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.provider-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--r-card);
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font);
   font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s, color 0.2s;
+  width: 100%;
+}
+.provider-tab:hover { background: var(--border); color: var(--text); }
+.provider-tab.active-x402 { background: rgba(34,211,238,0.12); color: var(--cyan); }
+.provider-tab.active-mpp  { background: rgba(167,139,250,0.12); color: var(--violet); }
+.provider-tab.active-fiat { background: rgba(52,211,153,0.12);  color: var(--emerald); }
+.tab-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dot-cyan    { background: var(--cyan); }
+.dot-violet  { background: var(--violet); }
+.dot-emerald { background: var(--emerald); }
+
+/* Tool list */
+.tool-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+.tool-section-label {
+  padding: 8px 12px 4px;
+  font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--text-muted);
+  color: var(--muted);
 }
-.btn-small {
-  padding: 5px 12px;
-  font-size: 12px;
-  border-radius: 5px;
-  border: 1px solid var(--accent);
-  background: transparent;
-  color: var(--accent);
-  cursor: pointer;
-  font-family: var(--font-sans);
-  transition: all 0.15s;
+.tool-section-sep {
+  margin: 6px 12px;
+  border: none;
+  border-top: 1px solid var(--border);
 }
-.btn-small:hover { background: var(--accent); color: #fff; }
-.invoice-table {
+.tool-item {
+  display: block;
   width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-}
-.invoice-table th {
-  padding: 8px 16px;
+  padding: 7px 12px;
+  border: none;
+  background: transparent;
   text-align: left;
-  color: var(--text-muted);
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: background 0.2s, border-color 0.2s;
+}
+.tool-item:hover { background: rgba(255,255,255,0.04); }
+.tool-item.active-x402 { border-left-color: var(--cyan);   background: rgba(34,211,238,0.07); }
+.tool-item.active-mpp  { border-left-color: var(--violet); background: rgba(167,139,250,0.07); }
+.tool-item.active-fiat { border-left-color: var(--emerald);background: rgba(52,211,153,0.07); }
+.tool-item-name {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--text);
+  display: block;
+}
+.tool-item.active-x402 .tool-item-name { color: var(--cyan); }
+.tool-item.active-mpp  .tool-item-name { color: var(--violet); }
+.tool-item.active-fiat .tool-item-name { color: var(--emerald); }
+.tool-item-desc {
+  font-size: 10.5px;
+  color: var(--muted);
+  display: block;
+  margin-top: 1px;
+  line-height: 1.4;
+}
+
+/* Collections banner */
+.collections-banner {
+  padding: 10px 12px;
+  background: var(--border);
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.5;
+  flex-shrink: 0;
+}
+.collections-banner strong { color: var(--text); font-weight: 600; }
+
+/* ── Center Panel ── */
+.center-panel {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.tool-header {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  background: var(--surface);
+}
+.tool-header-name {
+  font-size: 15px;
+  font-weight: 600;
+  font-family: var(--mono);
+  color: var(--text);
+}
+.tool-header-badge {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: var(--r-badge);
   font-weight: 500;
+}
+.badge-x402   { background: rgba(34,211,238,0.15);  color: var(--cyan); }
+.badge-mpp    { background: rgba(167,139,250,0.15); color: var(--violet); }
+.badge-fiat   { background: rgba(52,211,153,0.15);  color: var(--emerald); }
+.badge-coll   { background: rgba(234,179,8,0.15);   color: var(--warning); }
+
+.center-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Welcome state */
+.welcome-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 10px;
+  color: var(--muted);
+  text-align: center;
+  padding: 40px 20px;
+}
+.welcome-state svg { opacity: 0.3; }
+.welcome-state p { font-size: 13px; }
+
+/* ── Form ── */
+.form-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-card);
+  overflow: hidden;
+}
+.form-card-header {
+  padding: 10px 14px;
   border-bottom: 1px solid var(--border);
   font-size: 11px;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.07em;
+  color: var(--muted);
 }
-.invoice-table td {
-  padding: 8px 16px;
-  border-bottom: 1px solid var(--border);
-  font-family: var(--font-mono);
-  font-size: 12px;
+.form-body {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
-.invoice-table tr:last-child td { border-bottom: none; }
-.invoice-table tr:hover td { background: var(--bg-hover); }
-.invoice-table td:first-child { color: var(--accent); }
-.status-badge {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 4px;
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.form-row label {
   font-size: 11px;
-  font-family: var(--font-sans);
   font-weight: 500;
+  color: var(--muted);
+  text-transform: lowercase;
+  font-family: var(--mono);
 }
-.status-badge.sent { background: #1e3a5f; color: #93c5fd; }
-.status-badge.paid { background: #14532d; color: #86efac; }
-.status-badge.pending { background: #422006; color: #fcd34d; }
-.status-badge.cancelled { background: #450a0a; color: #fca5a5; }
-.invoice-empty {
-  padding: 20px 16px;
-  color: var(--text-muted);
+.form-row label .req { color: var(--error); margin-left: 2px; }
+input, select, textarea {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r-input);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 12px;
+  padding: 6px 10px;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--muted); }
+select { cursor: pointer; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.run-btn {
+  padding: 8px 18px;
+  border-radius: var(--r-card);
+  border: none;
+  font-family: var(--font);
   font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: opacity 0.2s, transform 0.1s;
+  align-self: flex-start;
+}
+.run-btn:hover { opacity: 0.85; }
+.run-btn:active { transform: scale(0.97); }
+.run-btn-x402   { background: var(--cyan);    color: #000; }
+.run-btn-mpp    { background: var(--violet);  color: #000; }
+.run-btn-fiat   { background: var(--emerald); color: #000; }
+.run-btn-coll   { background: var(--warning); color: #000; }
+.run-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.spinner {
+  width: 12px; height: 12px;
+  border: 2px solid rgba(0,0,0,0.3);
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: none;
+}
+.run-btn.loading .spinner { display: block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Result card ── */
+.result-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-card);
+  overflow: hidden;
+  display: none;
+}
+.result-card.visible { display: block; }
+.result-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+.result-tab {
+  padding: 7px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  font-family: var(--font);
+}
+.result-tab.active { color: var(--text); border-bottom-color: var(--cyan); }
+.result-tab-content { display: none; }
+.result-tab-content.active { display: block; }
+.code-block {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.7;
+  padding: 14px;
+  overflow-x: auto;
+  white-space: pre;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.json-key    { color: #93c5fd; }
+.json-string { color: var(--cyan); }
+.json-number { color: var(--violet); }
+.json-bool   { color: var(--emerald); }
+.json-null   { color: var(--muted); }
+
+/* ── Visual result cards ── */
+.visual-result { padding: 14px; }
+
+/* Balance card */
+.balance-display {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.balance-big {
+  font-size: 32px;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--text);
+  letter-spacing: -0.03em;
+  transition: color 0.4s ease-out;
+}
+.balance-big.flash-up   { color: var(--success); }
+.balance-big.flash-down { color: var(--error); }
+.balance-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.chain-badge {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: var(--r-badge);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.chain-polygon  { background: rgba(130,71,229,0.2); color: #8247e5; }
+.chain-base     { background: rgba(0,82,255,0.2);   color: #0052ff; }
+.chain-ethereum { background: rgba(98,126,234,0.2); color: #627eea; }
+.chain-usd      { background: rgba(52,211,153,0.15);color: var(--emerald); }
+.limit-bar-wrap { margin-top: 10px; }
+.limit-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.limit-bar-track {
+  height: 5px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.limit-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease-out, background 0.4s;
+}
+
+/* Send payment card */
+.payment-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.payment-arrow-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.payment-agent {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r-input);
+  padding: 6px 12px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text);
+}
+.payment-arrow-icon { color: var(--muted); font-size: 16px; }
+.payment-amount-big {
+  font-size: 24px;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--text);
+}
+.sent-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--success);
+  font-weight: 600;
+}
+.sent-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  animation: sent-pulse 1.5s ease-out forwards;
+}
+@keyframes sent-pulse {
+  0% { transform: scale(1); opacity: 1; }
+  60% { transform: scale(1.8); opacity: 0.5; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Invoice card */
+.invoice-card-visual {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.invoice-id-line { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+.invoice-amount-line { font-size: 24px; font-weight: 700; font-family: var(--mono); }
+.status-trail {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.status-step {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.status-step.done { color: var(--text); }
+.status-step.current-step { color: var(--success); }
+.status-dot-small {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--border);
+}
+.status-step.done .status-dot-small     { background: var(--success); }
+.status-step.current-step .status-dot-small { background: var(--warning); animation: pulse 1s infinite; }
+.status-arrow { color: var(--border); font-size: 10px; }
+.sbadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--r-badge);
+  font-size: 11px;
+  font-weight: 600;
+}
+.sbadge-draft   { background: rgba(234,179,8,0.15);  color: var(--warning); }
+.sbadge-sent    { background: rgba(99,102,241,0.15); color: #818cf8; }
+.sbadge-paid    { background: rgba(34,197,94,0.15);  color: var(--success); }
+.sbadge-pending { background: rgba(234,179,8,0.15);  color: var(--warning); }
+.sbadge-error   { background: rgba(239,68,68,0.15);  color: var(--error); }
+
+/* Transaction timeline */
+.txn-timeline { display: flex; flex-direction: column; gap: 0; }
+.txn-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.txn-item:last-child { border-bottom: none; }
+.txn-icon {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.txn-icon-send    { background: rgba(34,211,238,0.15); color: var(--cyan); }
+.txn-icon-receive { background: rgba(34,197,94,0.15);  color: var(--success); }
+.txn-icon-x402    { background: rgba(34,211,238,0.15); color: var(--cyan); }
+.txn-info { flex: 1; min-width: 0; }
+.txn-desc { font-size: 12px; color: var(--text); }
+.txn-meta { font-size: 10.5px; color: var(--muted); margin-top: 1px; }
+.txn-amount { font-family: var(--mono); font-size: 12px; font-weight: 600; }
+.txn-amount.pos { color: var(--success); }
+.txn-amount.neg { color: var(--error); }
+
+/* Session card */
+.session-visual {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.session-numbers {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.session-num-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r-input);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.session-num-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.session-num-value {
+  font-size: 20px;
+  font-weight: 700;
+  font-family: var(--mono);
+  transition: color 0.4s ease-out;
+}
+.session-num-value.flash { color: var(--warning); }
+.session-budget-bar { display: flex; flex-direction: column; gap: 4px; }
+.session-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  color: var(--muted);
+}
+.session-bar-track {
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.session-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s ease-out, background 0.3s;
+}
+.session-bar-fill.exhausted { background: var(--error) !important; }
+.session-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.session-id-text { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.session-pay-btn {
+  padding: 7px 14px;
+  border-radius: var(--r-input);
+  border: none;
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--violet);
+  color: #000;
+  transition: opacity 0.2s;
+}
+.session-pay-btn:hover { opacity: 0.85; }
+.session-pay-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.session-exhausted-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--r-badge);
+  background: rgba(239,68,68,0.15);
+  color: var(--error);
+  font-size: 11px;
+  font-weight: 600;
+}
+.session-timer { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.payment-count-badge {
+  padding: 2px 8px;
+  border-radius: var(--r-badge);
+  background: rgba(167,139,250,0.15);
+  color: var(--violet);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ── Right Sidebar ── */
+.right-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  overflow: hidden;
+}
+.right-scroll {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar-section {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sidebar-section-title {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+/* Live balance */
+.live-balance-agent {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.live-balance-name { font-size: 13px; font-weight: 600; }
+.live-balance-number {
+  font-size: 28px;
+  font-weight: 700;
+  font-family: var(--mono);
+  letter-spacing: -0.03em;
+  transition: color 0.4s ease-out;
+  line-height: 1.1;
+}
+.live-balance-number.flash-up   { color: var(--success); }
+.live-balance-number.flash-down { color: var(--error); }
+.live-chain-pills {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+.live-chain-pill {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 4px 8px;
+  border-radius: var(--r-badge);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: border-color 0.2s;
+  font-size: 10px;
+}
+.live-chain-pill.active { border-color: var(--cyan); }
+.live-chain-pill-name { font-weight: 600; color: var(--text); text-transform: uppercase; }
+.live-chain-pill-val  { color: var(--muted); font-family: var(--mono); }
+.live-spending-bar { margin-top: 10px; }
+.daily-limit-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--muted);
+  margin-bottom: 3px;
+}
+.daily-limit-track {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.daily-limit-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.4s ease-out;
+}
+
+/* Timeline */
+.timeline-wrap {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.timeline-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 14px 8px;
+  position: relative;
+}
+.timeline-fade {
+  position: sticky;
+  bottom: 0;
+  height: 30px;
+  background: linear-gradient(to top, var(--surface), transparent);
+  pointer-events: none;
+  margin-top: -30px;
+}
+.tl-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  animation: tl-fade-in 0.3s ease-out;
+}
+.tl-item:first-child { border-top: none; }
+.tl-item:last-child { border-bottom: none; }
+@keyframes tl-fade-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.tl-icon {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.tl-cyan    { background: rgba(34,211,238,0.15);  color: var(--cyan); }
+.tl-violet  { background: rgba(167,139,250,0.15); color: var(--violet); }
+.tl-green   { background: rgba(34,197,94,0.15);   color: var(--success); }
+.tl-blue    { background: rgba(99,102,241,0.15);  color: #818cf8; }
+.tl-yellow  { background: rgba(234,179,8,0.15);   color: var(--warning); }
+.tl-muted   { background: var(--border);           color: var(--muted); }
+.tl-info { flex: 1; min-width: 0; }
+.tl-name { font-size: 11.5px; font-family: var(--mono); color: var(--text); }
+.tl-sub  { font-size: 10px; color: var(--muted); margin-top: 1px; }
+.tl-empty {
+  padding: 20px 0;
+  color: var(--muted);
+  font-size: 12px;
   text-align: center;
 }
 
-/* ─── Footer ─── */
-.footer {
-  border-top: 1px solid var(--border);
-  padding: 12px 24px;
-  font-size: 11px;
-  color: var(--text-muted);
+/* Status bar */
+.status-bar {
   display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  font-size: 11px;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
 }
+.sd {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.sd-idle    { background: var(--muted); }
+.sd-loading { background: var(--warning); animation: pulse 1s infinite; }
+.sd-ok      { background: var(--success); }
+.sd-err     { background: var(--error); }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
 
-/* ─── Responsive ─── */
-@media (max-width: 600px) {
-  .main { flex-direction: column; }
-  .tool-panel {
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .app-body { flex-direction: column; }
+  .left-sidebar {
     width: 100%;
+    flex-direction: column;
     border-right: none;
     border-bottom: 1px solid var(--border);
-    display: flex;
-    flex-wrap: wrap;
+    overflow: visible;
+  }
+  .provider-tabs {
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 8px;
     gap: 4px;
-    padding: 12px;
   }
-  .tool-panel-label { display: none; }
-  .tool-btn {
-    width: auto;
-    padding: 6px 10px;
-    font-size: 11px;
-    border-radius: 5px;
+  .provider-tab { min-width: fit-content; }
+  .tool-list { max-height: 0; overflow: hidden; transition: max-height 0.3s; }
+  .tool-list.mobile-open { max-height: 240px; overflow-y: auto; }
+  .right-sidebar { width: 100%; border-left: none; border-top: 1px solid var(--border); }
+  .right-scroll { flex-direction: row; flex-wrap: wrap; overflow-x: auto; }
+  .sidebar-section { min-width: 240px; flex: 1; border-bottom: none; border-right: 1px solid var(--border); }
+  .timeline-wrap { min-width: 240px; flex: 2; }
+  .collections-banner { display: none; }
+  .site-header { padding: 10px 14px; }
+  .wordmark { font-size: 14px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .session-numbers { grid-template-columns: 1fr 1fr; }
+  .tool-mobile-select-wrap { display: flex; align-items: center; gap: 8px; padding: 8px; border-top: 1px solid var(--border); }
+  .tool-mobile-select {
+    flex: 1;
+    padding: 7px 10px;
+    background: var(--bg);
     border: 1px solid var(--border);
-    border-left: 2px solid transparent;
+    border-radius: var(--r-input);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 12px;
   }
-  .tool-btn.active { border-left-color: var(--accent); }
-  .tabs { padding: 12px; flex-wrap: wrap; }
-  .header { padding: 14px 16px; }
-  .output-panel { padding: 12px; }
+}
+@media (min-width: 769px) {
+  .tool-mobile-select-wrap { display: none; }
+}
+@media (max-width: 375px) {
+  .session-numbers { grid-template-columns: 1fr; }
+  .payment-arrow-row { flex-direction: column; }
 }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <h1>MoltPe Agent Payments</h1>
-  <p>Reference Implementation — interactive tool explorer</p>
-</div>
-
-<div class="tabs" id="tabs">
-  <button class="tab active" data-provider="stablecoin">Stablecoin / x402</button>
-  <button class="tab" data-provider="session">Session / MPP</button>
-  <button class="tab" data-provider="fiat">Fiat / Card</button>
-</div>
-
-<div class="main">
-  <div class="tool-panel" id="toolPanel">
-    <div class="tool-panel-label">Tools</div>
-    <!-- populated by JS -->
+<!-- ── Header ── -->
+<header class="site-header">
+  <div class="header-left">
+    <span class="wordmark">MoltPe <span>Agent Payments</span></span>
+    <span class="ref-badge">Reference Implementation</span>
   </div>
+  <div class="header-right">
+    <a class="npm-badge" href="https://www.npmjs.com/package/@moltpe/mcp-payments" target="_blank" rel="noopener">@moltpe/mcp-payments</a>
+    <a class="gh-link" href="https://github.com/umangbuilds/moltpe-agent-payments" target="_blank" rel="noopener">
+      <svg class="gh-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      GitHub
+    </a>
+  </div>
+</header>
 
-  <div class="output-panel" id="outputPanel">
-    <!-- Session Monitor (hidden unless session tab active) -->
-    <div class="session-monitor" id="sessionMonitor">
-      <h3>Session Monitor</h3>
-      <div class="session-row" id="sessionStats">
-        <div class="session-stat">
-          <span class="session-stat-label">Budget</span>
-          <span class="session-stat-value" id="smBudget">—</span>
-        </div>
-        <div class="session-stat">
-          <span class="session-stat-label">Spent</span>
-          <span class="session-stat-value" id="smSpent">—</span>
-        </div>
-        <div class="session-stat">
-          <span class="session-stat-label">Remaining</span>
-          <span class="session-stat-value" id="smRemaining">—</span>
-        </div>
-        <div class="session-stat">
-          <span class="session-stat-label">Payments</span>
-          <span class="session-stat-value" id="smPayments">—</span>
+<!-- ── App ── -->
+<div class="app-body" id="appBody">
+
+  <!-- ── Left Sidebar ── -->
+  <aside class="left-sidebar" id="leftSidebar">
+    <div class="provider-tabs" id="providerTabs">
+      <button class="provider-tab" data-tab="x402" id="tab-x402">
+        <span class="tab-dot dot-cyan"></span>Stablecoin / x402
+      </button>
+      <button class="provider-tab" data-tab="mpp" id="tab-mpp">
+        <span class="tab-dot dot-violet"></span>Session / MPP
+      </button>
+      <button class="provider-tab" data-tab="fiat" id="tab-fiat">
+        <span class="tab-dot dot-emerald"></span>Fiat / Card
+      </button>
+    </div>
+
+    <!-- Mobile tool selector -->
+    <div class="tool-mobile-select-wrap">
+      <select class="tool-mobile-select" id="toolMobileSelect">
+        <option value="">Select a tool...</option>
+      </select>
+    </div>
+
+    <div class="tool-list" id="toolList">
+      <!-- populated by JS -->
+    </div>
+
+    <div class="collections-banner">
+      <strong>Collections</strong> work across all three providers. Create an invoice on any tab.
+    </div>
+  </aside>
+
+  <!-- ── Center Panel ── -->
+  <main class="center-panel">
+    <div class="tool-header" id="toolHeader">
+      <span class="tool-header-name" id="toolHeaderName">Select a tool</span>
+      <span class="tool-header-badge" id="toolHeaderBadge" style="display:none"></span>
+    </div>
+
+    <div class="center-scroll" id="centerScroll">
+
+      <!-- Welcome state -->
+      <div class="welcome-state" id="welcomeState">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+          <rect x="6" y="8" width="28" height="24" rx="4" stroke="#a1a1aa" stroke-width="1.5"/>
+          <line x1="12" y1="16" x2="28" y2="16" stroke="#a1a1aa" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="12" y1="21" x2="22" y2="21" stroke="#a1a1aa" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="12" y1="26" x2="18" y2="26" stroke="#a1a1aa" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <p>Pick a tool from the left to try it.</p>
+      </div>
+
+      <!-- Form card (hidden until tool selected) -->
+      <div class="form-card" id="formCard" style="display:none">
+        <div class="form-card-header">Parameters</div>
+        <div class="form-body" id="formBody">
+          <!-- generated by JS -->
         </div>
       </div>
-      <div class="progress-bar-track">
-        <div class="progress-bar-fill" id="smProgress" style="width:0%"></div>
+
+      <!-- MPP Session visualizer (shown when session active on MPP tab) -->
+      <div id="mppSessionCard" style="display:none">
+        <!-- rendered by JS -->
       </div>
-      <div class="progress-label" id="smPercent">No active session</div>
+
+      <!-- Result card -->
+      <div class="result-card" id="resultCard">
+        <div class="result-tabs">
+          <button class="result-tab active" data-rtab="visual" id="rtab-visual">Result</button>
+          <button class="result-tab" data-rtab="json" id="rtab-json">JSON</button>
+          <button class="result-tab" data-rtab="request" id="rtab-request">Request</button>
+        </div>
+        <div class="result-tab-content active" id="rcon-visual">
+          <div class="visual-result" id="visualResult"></div>
+        </div>
+        <div class="result-tab-content" id="rcon-json">
+          <div class="code-block" id="jsonBlock"></div>
+        </div>
+        <div class="result-tab-content" id="rcon-request">
+          <div class="code-block" id="requestBlock"></div>
+        </div>
+      </div>
+
     </div>
 
     <!-- Status bar -->
     <div class="status-bar">
-      <div class="status-dot" id="statusDot"></div>
-      <span id="statusText">Select a tool to run it</span>
+      <div class="sd sd-idle" id="statusDot"></div>
+      <span id="statusText">Loading tools...</span>
     </div>
+  </main>
 
-    <!-- Request output -->
-    <div class="output-section" id="requestSection" style="display:none">
-      <div class="output-label">Request</div>
-      <div class="code-block" id="requestBlock"></div>
-    </div>
+  <!-- ── Right Sidebar ── -->
+  <aside class="right-sidebar">
+    <div class="right-scroll">
 
-    <!-- Response output -->
-    <div class="output-section" id="responseSection" style="display:none">
-      <div class="output-label">Response</div>
-      <div class="code-block" id="responseBlock"></div>
-    </div>
-
-    <!-- Welcome placeholder (hides after first tool run) -->
-    <div class="code-block placeholder" id="welcomeBlock">
-      Click any tool on the left to execute it and see the JSON request and response here.
-    </div>
-
-    <!-- Invoice Dashboard -->
-    <div class="invoice-panel" id="invoicePanel">
-      <div class="invoice-panel-header">
-        <h3>Invoice Dashboard</h3>
-        <button class="btn-small" id="createInvoiceBtn">+ Create Invoice</button>
+      <!-- Live Balance -->
+      <div class="sidebar-section" id="liveBalanceSection">
+        <div class="sidebar-section-title">
+          Live Balance
+          <span id="liveProviderBadge" class="tool-header-badge"></span>
+        </div>
+        <div class="live-balance-agent">
+          <span class="live-balance-name" id="liveAgentName">agent-alice</span>
+        </div>
+        <div class="live-balance-number" id="liveBalanceNum">—</div>
+        <div class="live-chain-pills" id="liveChainPills">
+          <!-- populated by JS -->
+        </div>
+        <div class="live-spending-bar">
+          <div class="daily-limit-label">
+            <span>Daily spending</span>
+            <span id="liveLimitLabel">—</span>
+          </div>
+          <div class="daily-limit-track">
+            <div class="daily-limit-fill" id="liveLimitFill" style="width:0%"></div>
+          </div>
+        </div>
       </div>
-      <div id="invoiceBody">
-        <div class="invoice-empty" id="invoiceEmpty">No invoices yet. Click "+ Create Invoice" to create one.</div>
-        <table class="invoice-table" id="invoiceTable" style="display:none">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Amount</th>
-              <th>Status</th>
-              <th>Billed To</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody id="invoiceRows"></tbody>
-        </table>
+
+      <!-- Transaction Timeline -->
+      <div class="sidebar-section" style="padding-bottom:0; flex:1; display:flex; flex-direction:column; border-bottom:none;">
+        <div class="sidebar-section-title" style="padding-bottom:0; flex-shrink:0;">
+          This Session
+        </div>
+        <div class="timeline-wrap">
+          <div class="timeline-list" id="timelineList">
+            <div class="tl-empty" id="tlEmpty">No activity yet.</div>
+          </div>
+          <div class="timeline-fade"></div>
+        </div>
       </div>
+
     </div>
+  </aside>
 
-  </div>
-</div>
-
-<div class="footer">
-  <span>Apache 2.0</span>
-  <a href="https://github.com/umangbuilds/moltpe-agent-payments" target="_blank" rel="noopener">github.com/umangbuilds/moltpe-agent-payments</a>
-  <span>MoltPe Agent Payments v0.1</span>
 </div>
 
 <script>
-// ─── State ───────────────────────────────────────────────────────────────────
-
-var state = {
-  provider: 'stablecoin',
-  activeTool: null,
+// ── State ────────────────────────────────────────────────────────────────────
+var S = {
+  tab: 'x402',
   tools: [],
-  invoices: [],
+  activeTool: null,
   sessionId: null,
-  lastSessionData: null
+  sessionData: null,
+  sessionPayments: 0,
+  sessionExpiresAt: null,
+  sessionTimerInterval: null,
+  invoices: [],
+  timeline: [],
+  liveBalance: null,
+  liveSpent: 0,
+  liveChain: 'polygon',
+  liveCurrency: 'USDC',
+  liveAgent: 'agent-alice'
 };
 
-// Tool-to-provider compatibility
-var PROVIDER_MAP = {
-  call_x402_endpoint: ['stablecoin'],
-  create_payment_session: ['session'],
-  get_session_status: ['session']
+// ── Tool definitions ──────────────────────────────────────────────────────────
+// Tab grouping
+var TAB_TOOLS = {
+  x402: ['check_balance','send_payment','list_transactions','agent_info','call_x402_endpoint'],
+  mpp:  ['create_payment_session','get_session_status','send_payment','check_balance','agent_info'],
+  fiat: ['send_payment','check_balance','list_transactions','agent_info']
+};
+var COLLECTION_TOOLS = ['create_invoice','check_invoice_status','list_invoices','pay_invoice'];
+
+var TOOL_DESCS = {
+  check_balance:          'Check the current balance for an agent.',
+  list_transactions:      'List recent transactions for an agent.',
+  agent_info:             'Get info about an agent account.',
+  send_payment:           'Send a payment from one agent to another.',
+  call_x402_endpoint:     'Call a paid HTTP endpoint via x402.',
+  create_invoice:         'Create a new payment invoice.',
+  check_invoice_status:   'Check the status of an invoice.',
+  list_invoices:          'List invoices for an agent.',
+  pay_invoice:            'Pay an outstanding invoice.',
+  create_payment_session: 'Create a capped payment session with a budget.',
+  get_session_status:     'Check status and spending of an active session.'
 };
 
-// Default args for each tool
-var DEFAULT_ARGS = {
-  check_balance:         { agentId: 'agent-alice' },
-  list_transactions:     { agentId: 'agent-alice', limit: 5 },
-  agent_info:            { agentId: 'agent-alice' },
-  send_payment:          { from: 'agent-alice', to: 'agent-bob', amount: 5 },
-  call_x402_endpoint:    { url: 'https://api.example.com/weather', agentId: 'agent-alice' },
-  create_invoice:        { createdBy: 'agent-bob', billedTo: 'agent-alice', amount: 15, currency: 'USDC', description: 'API usage fee' },
-  check_invoice_status:  { invoiceId: 'inv-001' },
-  list_invoices:         { agentId: 'agent-bob' },
-  pay_invoice:           { invoiceId: 'inv-001', payerAgentId: 'agent-alice' },
-  create_payment_session:{ agentId: 'agent-alice', budget: 25, description: 'Research session' },
-  get_session_status:    { sessionId: 'session-001' }
+// Default seed data
+var DEFAULTS = {
+  agentId:    'agent-alice',
+  from:       'agent-alice',
+  to:         'agent-bob',
+  amount:     5,
+  currency:   'USDC',
+  chain:      'polygon',
+  url:        'https://api.example.com/weather',
+  budget:     25,
+  createdBy:  'agent-bob',
+  billedTo:   'agent-alice',
+  description:'API usage fee',
+  limit:      5,
+  offset:     0,
+  maxAmount:  1,
+  dueDate:    '',
+  invoiceId:  '',
+  sessionId:  '',
+  paymentMethod: 'crypto',
+  provider:   ''
 };
 
-// ─── Utility ─────────────────────────────────────────────────────────────────
+var AGENTS = ['agent-alice', 'agent-bob', 'agent-charlie'];
+var CURRENCIES = ['USDC', 'USD', 'INR', 'AED', 'EUR'];
+var CHAINS = ['polygon', 'base', 'ethereum'];
 
-function toolAllowedForProvider(toolName, provider) {
-  var allowed = PROVIDER_MAP[toolName];
-  if (!allowed) return true;   // no restriction — works on all
-  return allowed.indexOf(provider) !== -1;
+var DAILY_LIMIT = 1000;
+
+// ── Color helpers ─────────────────────────────────────────────────────────────
+function tabAccent(tab) {
+  return tab === 'x402' ? 'var(--cyan)' : tab === 'mpp' ? 'var(--violet)' : 'var(--emerald)';
+}
+function tabClass(tab) {
+  return tab === 'x402' ? 'active-x402' : tab === 'mpp' ? 'active-mpp' : 'active-fiat';
+}
+function tabBadge(tab) {
+  return tab === 'x402' ? 'badge-x402' : tab === 'mpp' ? 'badge-mpp' : 'badge-fiat';
+}
+function tabRunClass(tab) {
+  return tab === 'x402' ? 'run-btn-x402' : tab === 'mpp' ? 'run-btn-mpp' : 'run-btn-fiat';
+}
+function isCollection(name) {
+  return COLLECTION_TOOLS.indexOf(name) !== -1;
 }
 
-// JSON syntax highlighter (no external libs)
-function highlightJson(obj) {
-  var str = JSON.stringify(obj, null, 2);
-  return str.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function(match) {
+// ── HTML escape ───────────────────────────────────────────────────────────────
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── JSON highlighter ──────────────────────────────────────────────────────────
+function hlJson(obj) {
+  var s = JSON.stringify(obj, null, 2);
+  return s.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)/g, function(m) {
     var cls = 'json-number';
-    if (/^"/.test(match)) {
-      cls = /:$/.test(match) ? 'json-key' : 'json-string';
-    } else if (/true|false/.test(match)) {
-      cls = 'json-bool';
-    } else if (/null/.test(match)) {
-      cls = 'json-null';
-    }
-    return '<span class="' + cls + '">' + escHtml(match) + '</span>';
+    if (/^"/.test(m)) cls = /:$/.test(m) ? 'json-key' : 'json-string';
+    else if (/true|false/.test(m)) cls = 'json-bool';
+    else if (/null/.test(m)) cls = 'json-null';
+    return '<span class="' + cls + '">' + esc(m) + '</span>';
   });
 }
 
-function escHtml(s) {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
-
+// ── Status ────────────────────────────────────────────────────────────────────
 function setStatus(type, text) {
   var dot = document.getElementById('statusDot');
-  var label = document.getElementById('statusText');
-  dot.className = 'status-dot ' + (type || '');
-  label.textContent = text;
+  dot.className = 'sd sd-' + (type || 'idle');
+  document.getElementById('statusText').textContent = text;
 }
 
-// ─── Fetch helpers ────────────────────────────────────────────────────────────
-
-function fetchTools() {
-  return fetch('/api/tools')
-    .then(function(r) { return r.json(); })
-    .catch(function() { return []; });
-}
-
-function callTool(toolName, args, provider) {
-  return fetch('/api/try-tool', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ tool: toolName, args: args, provider: provider })
-  }).then(function(r) { return r.json(); });
-}
-
-// ─── Render tools list ────────────────────────────────────────────────────────
-
-function renderTools() {
-  var panel = document.getElementById('toolPanel');
-  // Clear existing tool buttons but keep the label
-  var label = panel.querySelector('.tool-panel-label');
-  panel.innerHTML = '';
-  if (label) panel.appendChild(label);
-
-  state.tools.forEach(function(tool) {
-    var allowed = toolAllowedForProvider(tool.name, state.provider);
-    var btn = document.createElement('button');
-    btn.className = 'tool-btn' + (allowed ? '' : ' disabled') + (state.activeTool === tool.name ? ' active' : '');
-    btn.setAttribute('data-tool', tool.name);
-
-    var nameSpan = document.createElement('span');
-    nameSpan.textContent = tool.name;
-    btn.appendChild(nameSpan);
-
-    if (!allowed) {
-      var badge = document.createElement('span');
-      badge.className = 'tool-badge';
-      badge.textContent = (PROVIDER_MAP[tool.name] || []).join(', ') + ' only';
-      btn.appendChild(badge);
-      btn.title = 'Not available for ' + state.provider + ' provider';
-    }
-
-    btn.addEventListener('click', function() {
-      if (!allowed) return;
-      runTool(tool.name);
-    });
-
-    panel.appendChild(btn);
+// ── Render provider tabs ──────────────────────────────────────────────────────
+function renderProviderTabs() {
+  ['x402','mpp','fiat'].forEach(function(t) {
+    var btn = document.getElementById('tab-' + t);
+    btn.className = 'provider-tab' + (S.tab === t ? ' active-' + t : '');
   });
 }
 
-// ─── Run tool ────────────────────────────────────────────────────────────────
+// ── Render tool list (desktop) ────────────────────────────────────────────────
+function renderToolList() {
+  var list = document.getElementById('toolList');
+  list.innerHTML = '';
 
-function runTool(toolName) {
-  state.activeTool = toolName;
-  renderTools();
+  var tabTools = TAB_TOOLS[S.tab] || [];
 
-  var args = Object.assign({}, DEFAULT_ARGS[toolName] || {});
+  // Primary tools
+  var lbl = document.createElement('div');
+  lbl.className = 'tool-section-label';
+  lbl.textContent = S.tab === 'x402' ? 'Stablecoin / x402' : S.tab === 'mpp' ? 'Session / MPP' : 'Fiat / Card';
+  list.appendChild(lbl);
 
-  // If we have a known session ID, use it for get_session_status
-  if (toolName === 'get_session_status' && state.sessionId) {
-    args.sessionId = state.sessionId;
-  }
-  // If we have invoices from this session, use the last one for status/pay
-  if ((toolName === 'check_invoice_status' || toolName === 'pay_invoice') && state.invoices.length > 0) {
-    args.invoiceId = state.invoices[state.invoices.length - 1].invoiceId;
-  }
+  tabTools.forEach(function(name) {
+    list.appendChild(makeToolItem(name));
+  });
 
-  setStatus('loading', 'Running ' + toolName + '...');
+  // Collections separator
+  var sep = document.createElement('hr');
+  sep.className = 'tool-section-sep';
+  list.appendChild(sep);
 
-  // Hide welcome, show sections
-  document.getElementById('welcomeBlock').style.display = 'none';
-  document.getElementById('requestSection').style.display = 'flex';
-  document.getElementById('responseSection').style.display = 'flex';
+  var collLbl = document.createElement('div');
+  collLbl.className = 'tool-section-label';
+  collLbl.textContent = 'Collections';
+  list.appendChild(collLbl);
 
-  var reqBlock = document.getElementById('requestBlock');
-  var resBlock = document.getElementById('responseBlock');
+  COLLECTION_TOOLS.forEach(function(name) {
+    list.appendChild(makeToolItem(name));
+  });
 
-  reqBlock.innerHTML = highlightJson({ tool: toolName, args: args, provider: state.provider });
-  resBlock.className = 'code-block';
-  resBlock.textContent = 'Waiting...';
-
-  callTool(toolName, args, state.provider)
-    .then(function(data) {
-      if (data.error) {
-        resBlock.innerHTML = '<span class="json-string">' + escHtml(data.error) + '</span>';
-        setStatus('err', 'Error from ' + toolName);
-      } else {
-        resBlock.innerHTML = highlightJson(data.response);
-        setStatus('ok', toolName + ' completed');
-      }
-
-      // Side effects
-      handleSideEffects(toolName, args, data);
-    })
-    .catch(function(err) {
-      resBlock.textContent = 'Network error: ' + err.message;
-      setStatus('err', 'Request failed');
-    });
+  // Mobile select
+  renderMobileSelect();
 }
 
-// ─── Side effects after tool run ─────────────────────────────────────────────
+function makeToolItem(name) {
+  var btn = document.createElement('button');
+  var isCol = isCollection(name);
+  var activeClass = isCol ? tabClass(S.tab) : tabClass(S.tab);
+  btn.className = 'tool-item' + (S.activeTool === name ? ' ' + activeClass : '');
+  btn.setAttribute('data-tool', name);
+  btn.innerHTML =
+    '<span class="tool-item-name">' + esc(name) + '</span>' +
+    '<span class="tool-item-desc">' + esc(TOOL_DESCS[name] || '') + '</span>';
+  btn.addEventListener('click', function() { selectTool(name); });
+  return btn;
+}
 
-function handleSideEffects(toolName, args, data) {
-  if (data.error) return;
-  var resp = data.response;
+function renderMobileSelect() {
+  var sel = document.getElementById('toolMobileSelect');
+  sel.innerHTML = '<option value="">Select a tool...</option>';
 
-  // Track session ID
-  if (toolName === 'create_payment_session' && resp && resp.sessionId) {
-    state.sessionId = resp.sessionId;
-    updateSessionMonitor(resp);
-  }
-  if (toolName === 'get_session_status' && resp) {
-    updateSessionMonitor(resp);
-  }
+  var tabTools = TAB_TOOLS[S.tab] || [];
+  var og1 = document.createElement('optgroup');
+  og1.label = S.tab === 'x402' ? 'Stablecoin / x402' : S.tab === 'mpp' ? 'Session / MPP' : 'Fiat / Card';
+  tabTools.forEach(function(name) {
+    var opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    if (S.activeTool === name) opt.selected = true;
+    og1.appendChild(opt);
+  });
+  sel.appendChild(og1);
 
-  // Track invoices (invoices use invoiceId field, not id)
-  if (toolName === 'create_invoice' && resp && resp.invoiceId) {
-    var existing = state.invoices.findIndex(function(inv) { return inv.invoiceId === resp.invoiceId; });
-    if (existing === -1) {
-      state.invoices.push(resp);
+  var og2 = document.createElement('optgroup');
+  og2.label = 'Collections';
+  COLLECTION_TOOLS.forEach(function(name) {
+    var opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    if (S.activeTool === name) opt.selected = true;
+    og2.appendChild(opt);
+  });
+  sel.appendChild(og2);
+}
+
+// ── Select tool ───────────────────────────────────────────────────────────────
+function selectTool(name) {
+  S.activeTool = name;
+  renderToolList();
+  renderToolHeader();
+  renderForm();
+  document.getElementById('welcomeState').style.display = 'none';
+  document.getElementById('formCard').style.display = 'block';
+  document.getElementById('resultCard').classList.remove('visible');
+  // Switch result tab back to visual
+  switchResultTab('visual');
+}
+
+function renderToolHeader() {
+  var nameEl = document.getElementById('toolHeaderName');
+  var badgeEl = document.getElementById('toolHeaderBadge');
+  nameEl.textContent = S.activeTool || 'Select a tool';
+
+  if (S.activeTool) {
+    badgeEl.style.display = 'inline-flex';
+    if (isCollection(S.activeTool)) {
+      badgeEl.className = 'tool-header-badge badge-coll';
+      badgeEl.textContent = 'Collections';
     } else {
-      state.invoices[existing] = resp;
+      badgeEl.className = 'tool-header-badge ' + tabBadge(S.tab);
+      badgeEl.textContent = S.tab === 'x402' ? 'x402' : S.tab === 'mpp' ? 'MPP' : 'Fiat';
     }
-    renderInvoices();
-  }
-  if (toolName === 'pay_invoice' && resp && resp.invoiceId) {
-    var idx = state.invoices.findIndex(function(inv) { return inv.invoiceId === resp.invoiceId; });
-    if (idx !== -1) {
-      state.invoices[idx].status = resp.status || 'paid';
-      renderInvoices();
-    }
-  }
-  if (toolName === 'list_invoices' && resp && Array.isArray(resp)) {
-    // list_invoices returns an array directly
-    resp.forEach(function(inv) {
-      var idx = state.invoices.findIndex(function(i) { return i.invoiceId === inv.invoiceId; });
-      if (idx === -1) {
-        state.invoices.push(inv);
-      } else {
-        state.invoices[idx] = inv;
-      }
-    });
-    renderInvoices();
-  }
-}
-
-// ─── Session Monitor ──────────────────────────────────────────────────────────
-
-function updateSessionMonitor(data) {
-  if (!data) return;
-  state.lastSessionData = data;
-
-  var budget = data.budget || data.totalBudget || 0;
-  var spent = data.spent || data.totalSpent || 0;
-  var remaining = data.remaining || data.remainingBudget || (budget - spent);
-  var payments = data.paymentCount || data.payments || 0;
-
-  document.getElementById('smBudget').textContent = '$' + Number(budget).toFixed(2);
-  document.getElementById('smSpent').textContent = '$' + Number(spent).toFixed(2);
-  document.getElementById('smRemaining').textContent = '$' + Number(remaining).toFixed(2);
-  document.getElementById('smPayments').textContent = payments;
-
-  var pct = budget > 0 ? Math.min(100, Math.round((spent / budget) * 100)) : 0;
-  document.getElementById('smProgress').style.width = pct + '%';
-  document.getElementById('smPercent').textContent = pct + '% used';
-}
-
-function showSessionMonitor(visible) {
-  var mon = document.getElementById('sessionMonitor');
-  if (visible) {
-    mon.classList.add('visible');
   } else {
-    mon.classList.remove('visible');
+    badgeEl.style.display = 'none';
   }
 }
 
-// ─── Invoice Dashboard ────────────────────────────────────────────────────────
+// ── Build form from tool schema ───────────────────────────────────────────────
+function getToolDef(name) {
+  for (var i = 0; i < S.tools.length; i++) {
+    if (S.tools[i].name === name) return S.tools[i];
+  }
+  return null;
+}
 
-function renderInvoices() {
-  var empty = document.getElementById('invoiceEmpty');
-  var table = document.getElementById('invoiceTable');
-  var tbody = document.getElementById('invoiceRows');
+// Which fields to show per tool (explicit list so we don't need schema parsing)
+var TOOL_FIELDS = {
+  check_balance:          [['agentId','required'],['chain',''],['currency',''],['provider','']],
+  list_transactions:      [['agentId','required'],['limit',''],['offset',''],['provider','']],
+  agent_info:             [['agentId','required'],['provider','']],
+  send_payment:           [['from','required'],['to','required'],['amount','required'],['currency',''],['chain',''],['sessionId',''],['paymentMethod',''],['provider','']],
+  call_x402_endpoint:     [['url','required'],['agentId','required'],['maxAmount',''],['chain','']],
+  create_invoice:         [['createdBy','required'],['billedTo',''],['amount','required'],['currency','required'],['description',''],['dueDate',''],['provider','']],
+  check_invoice_status:   [['invoiceId','required'],['provider','']],
+  list_invoices:          [['agentId','required'],['status',''],['provider','']],
+  pay_invoice:            [['invoiceId','required'],['agentId','required'],['provider',''],['chain',''],['paymentMethod','']],
+  create_payment_session: [['agentId','required'],['budget','required'],['currency',''],['description','']],
+  get_session_status:     [['sessionId','required']]
+};
 
-  if (state.invoices.length === 0) {
-    empty.style.display = 'block';
-    table.style.display = 'none';
+// Field type hints
+var FIELD_TYPE = {
+  agentId:'agent', from:'agent', createdBy:'agent', billedTo:'agent',
+  amount:'number', budget:'number', limit:'number', offset:'number', maxAmount:'number',
+  currency:'currency', chain:'chain', paymentMethod:'paymethod',
+  url:'text', to:'text', sessionId:'text', invoiceId:'text',
+  description:'text', dueDate:'text', status:'text', provider:'text'
+};
+
+var SHOW_CHAIN_TABS = { check_balance:true, send_payment:true, call_x402_endpoint:true, pay_invoice:true };
+
+function renderForm() {
+  var body = document.getElementById('formBody');
+  body.innerHTML = '';
+  var name = S.activeTool;
+  if (!name) return;
+
+  var fields = TOOL_FIELDS[name] || [];
+  var grid = document.createElement('div');
+  grid.className = 'form-grid';
+  var singleFields = [];
+
+  fields.forEach(function(pair) {
+    var fname = pair[0], req = pair[1] === 'required';
+    var type = FIELD_TYPE[fname] || 'text';
+
+    // Hide chain for non-stablecoin tabs (unless collection tool on any tab)
+    if (fname === 'chain' && S.tab === 'fiat') return;
+    // Hide sessionId for non-MPP unless already set
+    if (fname === 'sessionId' && S.tab !== 'mpp' && !S.sessionId) return;
+
+    var row = document.createElement('div');
+    row.className = 'form-row';
+
+    var label = document.createElement('label');
+    label.htmlFor = 'field-' + fname;
+    label.innerHTML = esc(fname) + (req ? '<span class="req">*</span>' : '');
+    row.appendChild(label);
+
+    var input = buildInput(fname, type, req);
+    row.appendChild(input);
+
+    // Wide fields go full width
+    var wide = ['url','description','dueDate','to'].indexOf(fname) !== -1;
+    if (wide) singleFields.push(row);
+    else grid.appendChild(row);
+  });
+
+  if (grid.children.length > 0) body.appendChild(grid);
+  singleFields.forEach(function(r) { body.appendChild(r); });
+
+  // Run button
+  var runBtn = document.createElement('button');
+  runBtn.className = 'run-btn ' + (isCollection(name) ? 'run-btn-coll' : tabRunClass(S.tab));
+  runBtn.id = 'runBtn';
+  runBtn.innerHTML = '<span class="spinner"></span>Run ' + esc(name);
+  runBtn.addEventListener('click', function() { runTool(); });
+  body.appendChild(runBtn);
+}
+
+function buildInput(fname, type, req) {
+  var val = DEFAULTS[fname] !== undefined ? DEFAULTS[fname] : '';
+  // Auto-fill sessionId from state
+  if (fname === 'sessionId' && S.sessionId) val = S.sessionId;
+  // Auto-fill last invoiceId
+  if (fname === 'invoiceId' && S.invoices.length > 0) {
+    val = S.invoices[S.invoices.length - 1].invoiceId || '';
+  }
+
+  if (type === 'agent') {
+    var sel = document.createElement('select');
+    sel.id = 'field-' + fname;
+    AGENTS.forEach(function(a) {
+      var opt = document.createElement('option');
+      opt.value = a;
+      opt.textContent = a;
+      if (a === val) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    return sel;
+  }
+  if (type === 'currency') {
+    var sel = document.createElement('select');
+    sel.id = 'field-' + fname;
+    // Fiat tab shows fiat currencies first
+    var currencies = S.tab === 'fiat' ? ['USD','INR','AED','EUR','USDC'] : CURRENCIES;
+    currencies.forEach(function(c) {
+      var opt = document.createElement('option');
+      opt.value = c;
+      opt.textContent = c;
+      if (c === (S.tab === 'fiat' ? 'USD' : val)) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    return sel;
+  }
+  if (type === 'chain') {
+    var sel = document.createElement('select');
+    sel.id = 'field-' + fname;
+    CHAINS.forEach(function(c) {
+      var opt = document.createElement('option');
+      opt.value = c;
+      opt.textContent = c;
+      if (c === val) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    return sel;
+  }
+  if (type === 'paymethod') {
+    var sel = document.createElement('select');
+    sel.id = 'field-' + fname;
+    ['crypto','card','bank'].forEach(function(m) {
+      var opt = document.createElement('option');
+      opt.value = m;
+      opt.textContent = m;
+      if (m === val) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    return sel;
+  }
+  if (type === 'number') {
+    var inp = document.createElement('input');
+    inp.type = 'number';
+    inp.step = '0.01';
+    inp.min = '0';
+    inp.id = 'field-' + fname;
+    inp.value = val;
+    return inp;
+  }
+  var inp = document.createElement('input');
+  inp.type = 'text';
+  inp.id = 'field-' + fname;
+  inp.value = String(val);
+  inp.placeholder = fname;
+  return inp;
+}
+
+function collectArgs() {
+  var name = S.activeTool;
+  if (!name) return {};
+  var fields = TOOL_FIELDS[name] || [];
+  var args = {};
+  fields.forEach(function(pair) {
+    var fname = pair[0];
+    var el = document.getElementById('field-' + fname);
+    if (!el) return;
+    var v = el.value.trim();
+    if (v === '') return;
+    var type = FIELD_TYPE[fname] || 'text';
+    if (type === 'number') {
+      var n = parseFloat(v);
+      if (!isNaN(n)) args[fname] = n;
+    } else {
+      args[fname] = v;
+    }
+  });
+  return args;
+}
+
+// ── Run tool ──────────────────────────────────────────────────────────────────
+function runTool() {
+  var name = S.activeTool;
+  if (!name) return;
+  var args = collectArgs();
+  var provider = S.tab === 'x402' ? 'stablecoin' : S.tab;
+
+  var btn = document.getElementById('runBtn');
+  if (btn) { btn.classList.add('loading'); btn.disabled = true; }
+
+  setStatus('loading', 'Running ' + name + '...');
+
+  var reqPayload = { tool: name, args: args, provider: provider };
+  document.getElementById('requestBlock').innerHTML = hlJson(reqPayload);
+
+  fetch('/api/try-tool', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(reqPayload)
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (btn) { btn.classList.remove('loading'); btn.disabled = false; }
+
+    if (data.error) {
+      document.getElementById('jsonBlock').innerHTML = '<span class="json-string">' + esc(data.error) + '</span>';
+      document.getElementById('visualResult').innerHTML = '<div style="padding:12px;color:var(--error);font-size:13px;">' + esc(data.error) + '</div>';
+      setStatus('err', 'Error: ' + data.error.slice(0, 60));
+      addTimeline(name, null, true);
+    } else {
+      document.getElementById('jsonBlock').innerHTML = hlJson(data.response);
+      renderVisualResult(name, args, data.response);
+      setStatus('ok', name + ' completed');
+      addTimeline(name, args, false);
+      handleSideEffects(name, args, data.response);
+    }
+
+    document.getElementById('resultCard').classList.add('visible');
+    switchResultTab('visual');
+  })
+  .catch(function(err) {
+    if (btn) { btn.classList.remove('loading'); btn.disabled = false; }
+    document.getElementById('jsonBlock').textContent = 'Network error: ' + err.message;
+    setStatus('err', 'Network error');
+    document.getElementById('resultCard').classList.add('visible');
+  });
+}
+
+// ── Visual result renderer ────────────────────────────────────────────────────
+function renderVisualResult(name, args, resp) {
+  var el = document.getElementById('visualResult');
+  el.innerHTML = '';
+
+  if (name === 'check_balance') {
+    var bal = resp.balance || resp.availableBalance || resp.amount || 0;
+    var currency = resp.currency || args.currency || 'USDC';
+    var chain = resp.chain || args.chain || '';
+    var chainClass = 'chain-' + chain.toLowerCase();
+    var spent = resp.spent || resp.dailySpent || 0;
+    var pct = Math.min(100, Math.round((spent / DAILY_LIMIT) * 100));
+    var barColor = pct > 80 ? 'var(--error)' : pct > 50 ? 'var(--warning)' : 'var(--success)';
+    el.innerHTML =
+      '<div class="balance-display">' +
+      '<div class="balance-big">' + esc(Number(bal).toFixed(2)) + ' ' + esc(currency) + '</div>' +
+      '<div class="balance-meta">' +
+        (chain ? '<span class="chain-badge ' + chainClass + '">' + esc(chain) + '</span>' : '') +
+        '<span style="font-size:11px;color:var(--muted);">' + esc(args.agentId || '') + '</span>' +
+      '</div>' +
+      '<div class="limit-bar-wrap">' +
+        '<div class="limit-bar-label"><span>Daily limit</span><span>' + spent + ' / ' + DAILY_LIMIT + '</span></div>' +
+        '<div class="limit-bar-track"><div class="limit-bar-fill" style="width:' + pct + '%;background:' + barColor + '"></div></div>' +
+      '</div>' +
+      '</div>';
+    // Update live balance
+    updateLiveBalance(bal, currency, chain, args.agentId);
+  }
+  else if (name === 'send_payment') {
+    var from = resp.from || args.from || '';
+    var to = resp.to || args.to || '';
+    var amount = resp.amount || args.amount || '';
+    var currency = resp.currency || args.currency || '';
+    var status = resp.status || 'sent';
+    el.innerHTML =
+      '<div class="payment-card">' +
+      '<div class="sent-indicator"><div class="sent-dot"></div>' + esc(status === 'completed' || status === 'sent' || status === 'success' ? 'Payment sent' : status) + '</div>' +
+      '<div class="payment-arrow-row">' +
+        '<span class="payment-agent">' + esc(from) + '</span>' +
+        '<span class="payment-arrow-icon">&#8594;</span>' +
+        '<span class="payment-agent">' + esc(to) + '</span>' +
+      '</div>' +
+      '<div class="payment-amount-big">' + esc(Number(amount).toFixed(2)) + ' ' + esc(currency) + '</div>' +
+      (resp.txHash ? '<div style="font-size:10.5px;color:var(--muted);font-family:var(--mono);">tx: ' + esc(resp.txHash) + '</div>' : '') +
+      '</div>';
+    // Update session if applicable
+    if (S.sessionData && args.sessionId) {
+      S.sessionPayments++;
+      var spent = (S.sessionData.spent || 0) + Number(amount || 0);
+      S.sessionData.spent = spent;
+      renderMppSession();
+    }
+    // Nudge live balance down
+    if (S.liveBalance !== null) {
+      S.liveBalance = Math.max(0, S.liveBalance - Number(amount || 0));
+      S.liveSpent += Number(amount || 0);
+      renderLiveBalance();
+    }
+  }
+  else if (name === 'create_invoice') {
+    var inv = resp;
+    var status = (inv.status || 'draft').toLowerCase();
+    el.innerHTML =
+      '<div class="invoice-card-visual">' +
+      '<div class="invoice-id-line">' + esc(inv.invoiceId || '') + '</div>' +
+      '<div class="invoice-amount-line">' + esc(Number(inv.amount || 0).toFixed(2)) + ' ' + esc(inv.currency || '') + '</div>' +
+      '<div>' + statusBadgeHtml(status) + '</div>' +
+      statusTrailHtml(status) +
+      (inv.description ? '<div style="font-size:11.5px;color:var(--muted);">' + esc(inv.description) + '</div>' : '') +
+      '</div>';
+  }
+  else if (name === 'check_invoice_status') {
+    var inv = resp;
+    var status = (inv.status || 'unknown').toLowerCase();
+    el.innerHTML =
+      '<div class="invoice-card-visual">' +
+      '<div class="invoice-id-line">' + esc(inv.invoiceId || args.invoiceId || '') + '</div>' +
+      '<div>' + statusBadgeHtml(status) + '</div>' +
+      statusTrailHtml(status) +
+      '</div>';
+  }
+  else if (name === 'list_transactions') {
+    var txns = Array.isArray(resp) ? resp : (resp.transactions || resp.data || []);
+    if (txns.length === 0) {
+      el.innerHTML = '<div style="padding:10px;color:var(--muted);font-size:12px;">No transactions found.</div>';
+    } else {
+      var html = '<div class="txn-timeline">';
+      txns.slice(0, 5).forEach(function(txn) {
+        var dir = (txn.direction || txn.type || 'send').toLowerCase();
+        var isReceive = dir === 'receive' || dir === 'credit' || dir === 'in';
+        var iconCls = isReceive ? 'txn-icon-receive' : 'txn-icon-send';
+        var amtCls = isReceive ? 'pos' : 'neg';
+        var sign = isReceive ? '+' : '-';
+        var ts = txn.timestamp || txn.createdAt || '';
+        var tsShort = ts ? new Date(ts).toLocaleTimeString() : '';
+        html +=
+          '<div class="txn-item">' +
+          '<div class="txn-icon ' + iconCls + '">' + (isReceive ? '↓' : '↑') + '</div>' +
+          '<div class="txn-info">' +
+            '<div class="txn-desc">' + esc(txn.description || txn.memo || (isReceive ? 'Received' : 'Sent')) + '</div>' +
+            '<div class="txn-meta">' + esc(tsShort) + (txn.from ? ' · from ' + esc(txn.from) : '') + '</div>' +
+          '</div>' +
+          '<div class="txn-amount ' + amtCls + '">' + sign + esc(Number(txn.amount || 0).toFixed(2)) + ' ' + esc(txn.currency || '') + '</div>' +
+          '</div>';
+      });
+      html += '</div>';
+      el.innerHTML = html;
+    }
+  }
+  else if (name === 'create_payment_session') {
+    S.sessionData = resp;
+    S.sessionPayments = 0;
+    S.sessionId = resp.sessionId || resp.id || null;
+    if (resp.expiresAt) {
+      S.sessionExpiresAt = new Date(resp.expiresAt).getTime();
+    }
+    renderMppSession();
+    el.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:4px 0;">Session created. See the card above for live tracking.</div>';
+    // Re-render form to auto-fill sessionId
+    renderForm();
+  }
+  else if (name === 'get_session_status') {
+    if (resp.sessionId || resp.id) {
+      S.sessionData = resp;
+      S.sessionId = resp.sessionId || resp.id || S.sessionId;
+      renderMppSession();
+      el.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:4px 0;">Session updated above.</div>';
+    } else {
+      el.innerHTML = '<div class="code-block">' + hlJson(resp) + '</div>';
+    }
+  }
+  else {
+    // Generic: show formatted JSON inline
+    var pre = document.createElement('div');
+    pre.className = 'code-block';
+    pre.style.maxHeight = '260px';
+    pre.innerHTML = hlJson(resp);
+    el.appendChild(pre);
+  }
+}
+
+function statusBadgeHtml(status) {
+  var cls = status === 'paid' ? 'sbadge-paid' : status === 'sent' ? 'sbadge-sent' : status === 'draft' ? 'sbadge-draft' : 'sbadge-pending';
+  return '<span class="sbadge ' + cls + '">' + esc(status) + '</span>';
+}
+
+function statusTrailHtml(currentStatus) {
+  var steps = ['draft', 'sent', 'paid'];
+  var currentIdx = steps.indexOf(currentStatus);
+  var html = '<div class="status-trail">';
+  steps.forEach(function(step, i) {
+    var isDone = i < currentIdx;
+    var isCurrent = i === currentIdx;
+    var cls = isDone ? 'done' : isCurrent ? 'current-step' : '';
+    html += '<div class="status-step ' + cls + '"><div class="status-dot-small"></div>' + esc(step) + '</div>';
+    if (i < steps.length - 1) html += '<span class="status-arrow">›</span>';
+  });
+  return html + '</div>';
+}
+
+// ── MPP Session card ──────────────────────────────────────────────────────────
+function renderMppSession() {
+  var card = document.getElementById('mppSessionCard');
+  if (!S.sessionData || S.tab !== 'mpp') {
+    card.style.display = 'none';
+    return;
+  }
+  card.style.display = 'block';
+
+  var data = S.sessionData;
+  var budget = Number(data.budget || data.totalBudget || 0);
+  var spent = Number(data.spent || data.totalSpent || 0);
+  var remaining = budget - spent;
+  var pct = budget > 0 ? Math.min(100, (spent / budget) * 100) : 0;
+  var barColor = pct >= 100 ? 'var(--error)' : pct > 70 ? 'var(--warning)' : 'var(--violet)';
+  var exhausted = pct >= 100;
+  var sessionId = data.sessionId || data.id || S.sessionId || '';
+  var currency = data.currency || 'USDC';
+  var payments = S.sessionPayments || data.paymentCount || 0;
+
+  // Timer
+  var timerHtml = '';
+  if (S.sessionExpiresAt) {
+    var now = Date.now();
+    var diff = Math.max(0, Math.floor((S.sessionExpiresAt - now) / 1000));
+    var mm = Math.floor(diff / 60);
+    var ss = diff % 60;
+    timerHtml = '<span class="session-timer" id="sessionTimerEl">Expires in ' + mm + ':' + (ss < 10 ? '0' : '') + ss + '</span>';
+    // Start/reset timer
+    if (S.sessionTimerInterval) clearInterval(S.sessionTimerInterval);
+    S.sessionTimerInterval = setInterval(function() {
+      var d = Math.max(0, Math.floor((S.sessionExpiresAt - Date.now()) / 1000));
+      var m = Math.floor(d / 60), s = d % 60;
+      var te = document.getElementById('sessionTimerEl');
+      if (te) te.textContent = 'Expires in ' + m + ':' + (s < 10 ? '0' : '') + s;
+      if (d === 0) clearInterval(S.sessionTimerInterval);
+    }, 1000);
+  }
+
+  card.innerHTML =
+    '<div class="form-card">' +
+    '<div class="form-card-header" style="color:var(--violet)">Session — ' + esc(sessionId) + '</div>' +
+    '<div class="form-body">' +
+    '<div class="session-visual">' +
+    '<div class="session-numbers">' +
+      '<div class="session-num-box"><div class="session-num-label">Budget</div><div class="session-num-value" style="color:var(--text)">' + budget.toFixed(2) + ' ' + esc(currency) + '</div></div>' +
+      '<div class="session-num-box"><div class="session-num-label">Spent</div><div class="session-num-value" id="sessionSpentEl" style="color:var(--violet)">' + spent.toFixed(2) + ' ' + esc(currency) + '</div></div>' +
+      '<div class="session-num-box"><div class="session-num-label">Remaining</div><div class="session-num-value" id="sessionRemEl" style="color:' + (exhausted ? 'var(--error)' : 'var(--emerald)') + '">' + remaining.toFixed(2) + ' ' + esc(currency) + '</div></div>' +
+    '</div>' +
+    '<div class="session-budget-bar">' +
+      '<div class="session-bar-label"><span>Budget used</span><span>' + Math.round(pct) + '%</span></div>' +
+      '<div class="session-bar-track"><div class="session-bar-fill ' + (exhausted ? 'exhausted' : '') + '" id="sessionBarFill" style="width:' + pct + '%;background:' + barColor + '"></div></div>' +
+    '</div>' +
+    '<div class="session-meta-row">' +
+      '<span class="payment-count-badge">' + payments + ' payment' + (payments !== 1 ? 's' : '') + '</span>' +
+      (timerHtml ? timerHtml : '') +
+      (exhausted
+        ? '<span class="session-exhausted-badge">&#9888; Budget exhausted</span>'
+        : '<button class="session-pay-btn" id="sessionPayBtn" onclick="makeSessionPayment()">Make Payment</button>') +
+    '</div>' +
+    '</div>' +
+    '</div>' +
+    '</div>';
+}
+
+function makeSessionPayment() {
+  if (!S.sessionData || !S.sessionId) return;
+  // Switch active tool to send_payment and pre-fill sessionId
+  S.activeTool = 'send_payment';
+  renderToolList();
+  renderToolHeader();
+  renderForm();
+  document.getElementById('welcomeState').style.display = 'none';
+  document.getElementById('formCard').style.display = 'block';
+  // Scroll to form
+  document.getElementById('centerScroll').scrollTop = 0;
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function findInvoiceIdx(invoiceId) {
+  for (var i = 0; i < S.invoices.length; i++) {
+    if (S.invoices[i].invoiceId === invoiceId) return i;
+  }
+  return -1;
+}
+
+// ── Side effects ──────────────────────────────────────────────────────────────
+function handleSideEffects(name, args, resp) {
+  if (!resp) return;
+
+  if (name === 'create_payment_session') {
+    S.sessionId = resp.sessionId || resp.id || null;
+    S.sessionData = resp;
+  }
+  if (name === 'get_session_status') {
+    if (resp.sessionId || resp.id) {
+      S.sessionId = resp.sessionId || resp.id || S.sessionId;
+      S.sessionData = resp;
+    }
+  }
+
+  // Invoice tracking
+  if (name === 'create_invoice' && resp.invoiceId) {
+    var idx = findInvoiceIdx(resp.invoiceId);
+    if (idx === -1) S.invoices.push(resp); else S.invoices[idx] = resp;
+  }
+  if (name === 'pay_invoice' && resp.invoiceId) {
+    var idx = findInvoiceIdx(resp.invoiceId);
+    if (idx !== -1) S.invoices[idx].status = resp.status || 'paid';
+  }
+  if (name === 'check_invoice_status' && resp.invoiceId) {
+    var idx = findInvoiceIdx(resp.invoiceId);
+    if (idx !== -1) S.invoices[idx].status = resp.status;
+  }
+  if (name === 'list_invoices' && Array.isArray(resp)) {
+    resp.forEach(function(inv) {
+      var idx = findInvoiceIdx(inv.invoiceId);
+      if (idx === -1) S.invoices.push(inv); else S.invoices[idx] = inv;
+    });
+  }
+
+  // Update live balance from check_balance
+  if (name === 'check_balance') {
+    var bal = resp.balance || resp.availableBalance || resp.amount || 0;
+    var currency = resp.currency || args.currency || 'USDC';
+    var chain = resp.chain || args.chain || '';
+    updateLiveBalance(bal, currency, chain, args.agentId);
+  }
+}
+
+// ── Live balance ──────────────────────────────────────────────────────────────
+function updateLiveBalance(bal, currency, chain, agent) {
+  var prev = S.liveBalance;
+  S.liveBalance = Number(bal);
+  S.liveCurrency = currency;
+  if (chain) S.liveChain = chain;
+  if (agent) {
+    S.liveAgent = agent;
+    document.getElementById('liveAgentName').textContent = agent;
+  }
+  renderLiveBalance();
+  // Flash animation
+  var el = document.getElementById('liveBalanceNum');
+  if (prev !== null) {
+    var cls = S.liveBalance > prev ? 'flash-up' : S.liveBalance < prev ? 'flash-down' : '';
+    if (cls) {
+      el.classList.add(cls);
+      setTimeout(function() { el.classList.remove(cls); }, 1200);
+    }
+  }
+}
+
+function renderLiveBalance() {
+  var el = document.getElementById('liveBalanceNum');
+  el.textContent = S.liveBalance !== null ? (Number(S.liveBalance).toFixed(2) + ' ' + S.liveCurrency) : '—';
+
+  // Provider badge
+  var badge = document.getElementById('liveProviderBadge');
+  badge.className = 'tool-header-badge ' + tabBadge(S.tab);
+  badge.textContent = S.tab === 'x402' ? 'x402' : S.tab === 'mpp' ? 'MPP' : 'Fiat';
+
+  // Chain pills (stablecoin)
+  var pillsEl = document.getElementById('liveChainPills');
+  if (S.tab === 'x402') {
+    pillsEl.innerHTML = CHAINS.map(function(c) {
+      return '<div class="live-chain-pill ' + (S.liveChain === c ? 'active' : '') + '" onclick="selectChain(\'' + c + '\')">' +
+        '<span class="live-chain-pill-name">' + c + '</span>' +
+        '<span class="live-chain-pill-val">' + (S.liveChain === c && S.liveBalance !== null ? Number(S.liveBalance).toFixed(2) : '—') + '</span>' +
+        '</div>';
+    }).join('');
+  } else if (S.tab === 'fiat') {
+    pillsEl.innerHTML = ['USD','INR','AED'].map(function(c) {
+      return '<div class="live-chain-pill ' + (S.liveCurrency === c ? 'active' : '') + '">' +
+        '<span class="live-chain-pill-name">' + c + '</span>' +
+        '<span class="live-chain-pill-val">' + (S.liveCurrency === c && S.liveBalance !== null ? Number(S.liveBalance).toFixed(2) : '—') + '</span>' +
+        '</div>';
+    }).join('');
+  } else {
+    pillsEl.innerHTML = '';
+  }
+
+  // Daily spending bar
+  var pct = Math.min(100, Math.round((S.liveSpent / DAILY_LIMIT) * 100));
+  var barColor = pct > 80 ? 'var(--error)' : pct > 50 ? 'var(--warning)' : tabAccent(S.tab);
+  document.getElementById('liveLimitLabel').textContent = S.liveSpent.toFixed(2) + ' / ' + DAILY_LIMIT;
+  document.getElementById('liveLimitFill').style.width = pct + '%';
+  document.getElementById('liveLimitFill').style.background = barColor;
+}
+
+function selectChain(chain) {
+  S.liveChain = chain;
+  renderLiveBalance();
+}
+
+// ── Timeline ──────────────────────────────────────────────────────────────────
+var TOOL_ICONS = {
+  check_balance: '◎', list_transactions: '≡', agent_info: 'ⓘ',
+  send_payment: '↑', call_x402_endpoint: '⚡', create_invoice: '📋',
+  check_invoice_status: '◎', list_invoices: '≡', pay_invoice: '↑',
+  create_payment_session: '⬡', get_session_status: '◎'
+};
+
+function tlIconClass(name, err) {
+  if (err) return 'tl-muted';
+  if (name === 'send_payment' || name === 'pay_invoice') return 'tl-cyan';
+  if (name === 'create_payment_session' || name === 'get_session_status') return 'tl-violet';
+  if (name === 'call_x402_endpoint') return 'tl-cyan';
+  if (name === 'create_invoice') return 'tl-yellow';
+  if (name === 'check_balance') return 'tl-green';
+  return 'tl-blue';
+}
+
+function addTimeline(name, args, err) {
+  var now = new Date();
+  var ts = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  var entry = { name: name, args: args, err: err, ts: ts };
+  S.timeline.unshift(entry); // newest first
+  renderTimeline();
+}
+
+function renderTimeline() {
+  var list = document.getElementById('timelineList');
+
+  if (S.timeline.length === 0) {
+    list.innerHTML = '<div class="tl-empty">No activity yet.</div>';
     return;
   }
 
-  empty.style.display = 'none';
-  table.style.display = 'table';
-  tbody.innerHTML = '';
+  var items = S.timeline.slice(0, 50);
+  list.innerHTML = '';
 
-  state.invoices.forEach(function(inv) {
-    var tr = document.createElement('tr');
-    var status = (inv.status || 'pending').toLowerCase();
-    tr.innerHTML =
-      '<td>' + escHtml(String(inv.invoiceId || '—')) + '</td>' +
-      '<td>' + escHtml(String(inv.amount || '—')) + ' ' + escHtml(String(inv.currency || '')) + '</td>' +
-      '<td><span class="status-badge ' + escHtml(status) + '">' + escHtml(status) + '</span></td>' +
-      '<td>' + escHtml(String(inv.billedTo || inv.to || '—')) + '</td>' +
-      '<td>' + escHtml(String(inv.description || '—')) + '</td>';
-    tbody.appendChild(tr);
+  items.forEach(function(entry) {
+    var div = document.createElement('div');
+    div.className = 'tl-item';
+    var iconCls = tlIconClass(entry.name, entry.err);
+    var amountSub = '';
+    if (entry.args && entry.args.amount) {
+      amountSub = ' · ' + Number(entry.args.amount).toFixed(2) + ' ' + (entry.args.currency || '');
+    }
+    var errTxt = entry.err ? ' · error' : '';
+    div.innerHTML =
+      '<div class="tl-icon ' + iconCls + '">' + esc(TOOL_ICONS[entry.name] || '•') + '</div>' +
+      '<div class="tl-info">' +
+        '<div class="tl-name">' + esc(entry.name) + '</div>' +
+        '<div class="tl-sub">' + esc(entry.ts) + esc(amountSub) + '<span style="color:var(--error)">' + esc(errTxt) + '</span></div>' +
+      '</div>';
+    list.appendChild(div);
   });
 }
 
-// ─── Tab switching ────────────────────────────────────────────────────────────
-
-function switchProvider(provider) {
-  state.provider = provider;
-  state.activeTool = null;
-
-  // Update tab styles
-  document.querySelectorAll('.tab').forEach(function(tab) {
-    tab.classList.toggle('active', tab.getAttribute('data-provider') === provider);
+// ── Result tab switching ──────────────────────────────────────────────────────
+function switchResultTab(name) {
+  ['visual','json','request'].forEach(function(t) {
+    document.getElementById('rtab-' + t).classList.toggle('active', t === name);
+    document.getElementById('rcon-' + t).classList.toggle('active', t === name);
   });
-
-  // Show/hide session monitor
-  showSessionMonitor(provider === 'session');
-
-  // Re-render tools
-  renderTools();
-
-  // Reset output to welcome
-  document.getElementById('welcomeBlock').style.display = 'block';
-  document.getElementById('requestSection').style.display = 'none';
-  document.getElementById('responseSection').style.display = 'none';
-  setStatus('', 'Select a tool to run it');
 }
 
-// ─── Init ─────────────────────────────────────────────────────────────────────
-
-document.getElementById('tabs').addEventListener('click', function(e) {
-  var tab = e.target.closest('.tab');
-  if (tab) switchProvider(tab.getAttribute('data-provider'));
+document.getElementById('resultCard').addEventListener('click', function(e) {
+  var btn = e.target.closest('.result-tab');
+  if (btn) switchResultTab(btn.getAttribute('data-rtab'));
 });
 
-document.getElementById('createInvoiceBtn').addEventListener('click', function() {
-  runTool('create_invoice');
+// ── Provider tab switching ────────────────────────────────────────────────────
+function switchTab(tab) {
+  S.tab = tab;
+  S.activeTool = null;
+  S.liveBalance = null;
+  S.liveSpent = 0;
+
+  renderProviderTabs();
+  renderToolList();
+  renderToolHeader();
+  renderLiveBalance();
+  renderMppSession();
+
+  document.getElementById('welcomeState').style.display = 'flex';
+  document.getElementById('formCard').style.display = 'none';
+  document.getElementById('resultCard').classList.remove('visible');
+  setStatus('ok', 'Switched to ' + tab + ' — select a tool');
+}
+
+document.getElementById('providerTabs').addEventListener('click', function(e) {
+  var btn = e.target.closest('.provider-tab');
+  if (btn) switchTab(btn.getAttribute('data-tab'));
 });
 
-fetchTools().then(function(tools) {
-  state.tools = tools;
-  renderTools();
-  setStatus('ok', 'Server connected — ' + tools.length + ' tools available');
-}).catch(function() {
-  setStatus('err', 'Could not load tools from server');
+document.getElementById('toolMobileSelect').addEventListener('change', function() {
+  var v = this.value;
+  if (v) selectTool(v);
 });
+
+// ── Load tools ────────────────────────────────────────────────────────────────
+fetch('/api/tools')
+  .then(function(r) { return r.json(); })
+  .then(function(tools) {
+    S.tools = tools;
+    // Default tab
+    switchTab('x402');
+    setStatus('ok', tools.length + ' tools loaded');
+  })
+  .catch(function() {
+    // Tools API failed — use built-in list
+    S.tools = Object.keys(TOOL_DESCS).map(function(name) {
+      return { name: name, description: TOOL_DESCS[name] };
+    });
+    switchTab('x402');
+    setStatus('idle', 'Server not connected — using local tool definitions');
+  });
 </script>
 </body>
 </html>
