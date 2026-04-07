@@ -114,6 +114,34 @@ See [docs/tri-rail-architecture.md](docs/tri-rail-architecture.md) for the full 
 - Agent collections/receivables is a near-total market gap — only PayPal MCP exists, ecosystem-locked. See [docs/collections-gap.md](docs/collections-gap.md).
 - Four protocols (x402, MPP, ACP, AP2) are converging into layers, not competing head-to-head. See [docs/protocol-landscape.md](docs/protocol-landscape.md).
 
+## Quality & Security
+
+| Metric | Value |
+|--------|-------|
+| Tests | 87 (53 mcp-server + 34 x402-client) |
+| Pass rate | 100% |
+| Statement coverage | 86.2% / 95.9% |
+| Runtime dependencies | 0 (both packages) |
+| npm audit | 0 vulnerabilities |
+| Secret scan | 0 findings |
+
+See [QUALITY.md](QUALITY.md) for full coverage breakdowns and scan results.
+See [SECURITY.md](SECURITY.md) for vulnerability reporting and security posture.
+See [docs/production-security-checklist.md](docs/production-security-checklist.md) for the 64-item production deployment checklist.
+
+## Integration Examples
+
+Looking to integrate MoltPe Agent Payments with your AI framework? These issues track planned integrations with example code:
+
+- **[LangChain tool wrapper](https://github.com/umangbuilds/moltpe-agent-payments/issues/6)** — Use MCP payment tools as LangChain tools
+- **[AutoGen agent](https://github.com/umangbuilds/moltpe-agent-payments/issues/7)** — Payment-capable AutoGen agent with budget guardrails
+- **[Base Sepolia testnet](https://github.com/umangbuilds/moltpe-agent-payments/issues/8)** — Real on-chain x402 payments on testnet
+- **[Webhook notifications](https://github.com/umangbuilds/moltpe-agent-payments/issues/9)** — Event-driven payment notifications
+- **[Security hardening docs](https://github.com/umangbuilds/moltpe-agent-payments/issues/10)** — Threat model and hardening guide
+- **[Eliza plugin](https://github.com/umangbuilds/moltpe-agent-payments/issues/11)** — Payment plugin for the Eliza agent framework
+
+Contributions welcome — pick an issue and open a PR.
+
 ## License
 
 - **Code** (everything outside `research/`, `playbook/`, `docs/`): [Apache License 2.0](LICENSE)
