@@ -16,9 +16,19 @@ npm start
 
 The server starts on port 3000 with all three providers loaded.
 
-## Interactive Demo
+## Demo UI
 
-Start the server and visit http://localhost:3000 in your browser for a visual tool explorer. Click any tool to see its request/response JSON. Switch between Stablecoin, Session, and Fiat providers.
+The server includes an interactive demo at `http://localhost:3000`.
+
+Features:
+- All 11 MCP tools with editable input fields
+- Three provider tabs: Stablecoin (x402), Session (MPP), Fiat
+- Live agent balance display
+- MPP session budget visualizer
+- Invoice lifecycle tracking
+- Transaction timeline
+
+The demo runs entirely in the browser with no additional dependencies.
 
 See [DEMO.md](DEMO.md) for a full walkthrough.
 

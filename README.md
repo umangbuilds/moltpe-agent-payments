@@ -34,9 +34,27 @@ See [mcp-server/README.md](mcp-server/README.md) and [x402-client/README.md](x40
 
 ## Demo
 
-Run `npm start` in the mcp-server directory and open http://localhost:3000 for an interactive demo. The UI lets you explore all 11 payment tools across three provider types.
+Start the server and open http://localhost:3000 to explore all 11 payment tools interactively.
+
+The demo includes:
+- Tool explorer with editable inputs for every MCP tool
+- Live balance tracking across stablecoin, session, and fiat providers
+- MPP session budget visualizer with real-time progress
+- Invoice lifecycle: create → send → track → collect
+- Transaction timeline of all actions
+
+Run with mock data (default) or connect to MoltPe's live MCP server.
 
 See [mcp-server/DEMO.md](mcp-server/DEMO.md) for a step-by-step walkthrough.
+
+## Live Mode
+
+```bash
+cd mcp-server
+PROVIDER_MODE=live MOLTPE_AGENT_TOKEN=swai_... npm start
+```
+
+Connects to moltpe.com/mcp for real on-chain transactions. See [mcp-server/README.md](mcp-server/README.md#connect-to-live) for setup.
 
 ## What's Inside
 
@@ -86,3 +104,5 @@ See [NOTICE](NOTICE) for attribution details.
 ## Author
 
 Created by Umang Gupta. [MoltPe](https://moltpe.com) builds payment infrastructure for AI agents.
+
+<!-- GitHub topics to add: ai-agents, payments, mcp, x402, mpp, stablecoins, fintech, usdc, model-context-protocol, agent-payments -->
