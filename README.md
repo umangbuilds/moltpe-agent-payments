@@ -142,6 +142,39 @@ Looking to integrate MoltPe Agent Payments with your AI framework? These issues 
 
 Contributions welcome — pick an issue and open a PR.
 
+## Deep Dives
+
+Long-form guides covering the MoltPe stack, AI agent payment patterns, and India-specific integration:
+
+**For developers evaluating MoltPe**
+- [Why developers choose MoltPe for AI agent payments](https://moltpe.com/blog/why-developers-choose-moltpe-for-ai-agent-payments) — five honest reasons, including the tradeoffs
+- [Integrate MoltPe in 5 minutes: developer quickstart](https://moltpe.com/blog/integrate-moltpe-in-5-minutes-developer-quickstart) — REST, MCP, x402, Python — all four integration paths with real code
+- [MoltPe vs building your own AI payment stack](https://moltpe.com/blog/moltpe-vs-building-your-own-ai-payment-stack) — the build-vs-buy analysis with real time estimates
+- [MoltPe developer experience: a deep dive](https://moltpe.com/blog/moltpe-developer-experience-deep-dive) — error messages, docs, testnet, rate limits
+- [The MCP server for AI agent payments, explained](https://moltpe.com/blog/mcp-server-for-ai-agent-payments) — Claude Desktop / Cursor / Windsurf config + tool surface
+
+**For Indian developers and AI startups**
+- [AI Agent Payments in India: The Complete Infrastructure Guide (2026)](https://moltpe.com/india) — pillar guide for India
+- [The Cost of AI Agent Payments in India: 2026 Benchmark](https://moltpe.com/blog/cost-of-ai-agent-payments-india-2026-benchmark) — 4-scenario cost comparison, 15-28x savings over PayPal
+- [USDC payments for Indian developers](https://moltpe.com/blog/usdc-payments-india-developers) — USDC vs Razorpay vs Stripe India vs PayPal
+- [Freelance AI developer payments in India](https://moltpe.com/blog/freelance-ai-developer-payments-india) — the forex-avoidance playbook
+- [The complete payments stack for Indian AI startups](https://moltpe.com/blog/ai-startup-india-payments-infrastructure) — 3-layer stack: UPI + MoltPe + agent-to-agent
+- [x402 protocol for Indian developers](https://moltpe.com/blog/x402-protocol-india-developers) — API monetization in USDC
+
+**Protocols and fundamentals**
+- [What are AI agent payments?](https://moltpe.com/blog/what-are-ai-agent-payments)
+- [The x402 protocol: complete guide](https://moltpe.com/blog/x402-protocol-complete-guide)
+- [Machine Payments Protocol (MPP) guide](https://moltpe.com/blog/machine-payments-protocol-mpp-guide)
+- [AI agent spending policies explained](https://moltpe.com/blog/ai-agent-spending-policies-guide)
+
+**Short answers (Q&A format)**
+- [What is an AI agent wallet?](https://moltpe.com/answers/what-is-an-agent-wallet)
+- [How do AI agents make payments?](https://moltpe.com/answers/how-do-ai-agents-make-payments)
+- [What is an AI agent spending policy?](https://moltpe.com/answers/ai-agent-spending-policy-explained)
+- [How to monetize an API in USDC](https://moltpe.com/answers/how-to-monetize-an-api-in-usdc)
+
+Also: [FAQ](https://moltpe.com/faq) · [Glossary](https://moltpe.com/glossary) · [Use cases](https://moltpe.com/use-cases) · [Developer docs](https://moltpe.com/guide)
+
 ## License
 
 - **Code** (everything outside `research/`, `playbook/`, `docs/`): [Apache License 2.0](LICENSE)
