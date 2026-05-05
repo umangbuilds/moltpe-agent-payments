@@ -9,6 +9,7 @@ Payment infrastructure for AI agents — reference implementation with x402, MPP
 [![npm: x402-client](https://img.shields.io/npm/v/@moltpe/x402-client?label=x402-client)](https://www.npmjs.com/package/@moltpe/x402-client)
 [![Zero Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](https://github.com/umangbuilds/moltpe-agent-payments)
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/umangbuilds/moltpe-agent-payments)
+[![smithery badge](https://smithery.ai/badge/umg-gpt/moltpe)](https://smithery.ai/servers/umg-gpt/moltpe)
 
 > **Disclaimer:** This is a reference implementation with mock data. For production, implement real PaymentProvider adapters. MoltPe's production server is at moltpe.com/mcp.
 
